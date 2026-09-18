@@ -1,0 +1,7 @@
+{
+  "_readme": "Your own cameras. Each entry: name, lat, lon, and either `image` (a JPEG/PNG URL that refreshes) or `link` (a page/stream to open). Optional: `note`. Restart the server after editing. Attribution belongs to the camera owner.",
+  "webcams": [
+    { "name": "Storebæltsbroen – østpylonen", "lat": 55.3420, "lon": 11.0330, "link": "https://storebaelt.dk/trafik-vejr/webcams/", "note": "Live stream (video), åbner på storebaelt.dk" },
+    { "name": "Sprogø", "lat": 55.3320, "lon": 10.9750, "link": "https://storebaelt.dk/trafik-vejr/webcams/", "note": "Live stream (video), åbner på storebaelt.dk" }
+  ]
+}

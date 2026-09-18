@@ -1,0 +1,22 @@
+services:
+  dk-live:
+    build: .
+    container_name: dk-live
+    restart: unless-stopped
+    ports:
+      - "4200:4200"
+    environment:
+      HOST: 0.0.0.0
+      PORT: 4200
+      # LAN that may open the API-key panel (your home network)
+      SETTINGS_ALLOW: 30.11.0.0/20
+      # Optional: keys can also be pasted in the app instead
+      # AISSTREAM_API_KEY: ""
+      # REJSEPLANEN_API_KEY: ""
+      # DMI_LIGHTNING_KEY: ""
+    volumes:
+      - dk-live-cache:/app/server/cache
+      - ./data:/app/data
+
+volumes:
+  dk-live-cache:

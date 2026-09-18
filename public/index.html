@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>DK live</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+  <link href="style.css" rel="stylesheet" />
+</head>
+<body>
+  <div id="map"></div>
+
+  <button id="reset" class="chip">Hele kortet</button>
+  <button id="stats-top" class="chip" title="Beredskabsalarmer – statistik og seneste alarmer">Beredskabsalarmer</button>
+  <button id="settings-open" class="chip" aria-label="Indstillinger" title="Indstillinger">⚙</button>
+
+  <section id="settings" aria-label="Indstillinger" hidden>
+    <header>
+      <h2>Indstillinger</h2>
+      <button id="settings-close" aria-label="Luk">×</button>
+    </header>
+    <nav id="settings-tabs"></nav>
+    <div id="settings-body"></div>
+  </section>
+
+  <div id="layers-menu">
+    <button id="layers-toggle" aria-expanded="false" aria-controls="layers">Datalag <span class="caret">▾</span></button>
+    <aside id="layers" aria-label="Datalag" hidden>
+    <label class="layer" data-layer="flights">
+      <input type="checkbox" checked /> <span class="swatch" style="--c: var(--flight)"></span>
+      <span class="name">Fly</span> <span class="count" data-count="flights">–</span>
+    </label>
+    <label class="layer" data-layer="military">
+      <input type="checkbox" checked /> <span class="swatch" style="--c: var(--military)"></span>
+      <span class="name">Militærfly</span> <span class="count" data-count="military">–</span>
+    </label>
+    <label class="layer" data-layer="airports">
+      <input type="checkbox" checked /> <span class="swatch" style="--c: var(--airport)"></span>
+      <span class="name">Lufthavne</span> <span class="count" data-count="airports">–</span>
+    </label>
+    <label class="layer" data-layer="ships">
+      <input type="checkbox" checked /> <span class="swatch" style="--c: var(--ship)"></span>
+      <span class="name">Skibe</span> <span class="count" data-count="ships">–</span>
+    </label>
+    <label class="layer" data-layer="flow">
+      <input type="checkbox" /> <span class="swatch" style="--c: var(--flow)"></span>
+      <span class="name">Trafiktæthed</span> <span class="count" data-count="flow">–</span>
+    </label>
+    <label class="layer" data-layer="traffic">
+      <input type="checkbox" checked /> <span class="swatch" style="--c: var(--traffic)"></span>
+      <span class="name">Trafik</span> <span class="count" data-count="traffic">–</span>
+    </label>
+    <label class="layer" data-layer="trains">
+      <input type="checkbox" checked /> <span class="swatch" style="--c: var(--train)"></span>
+      <span class="name">Tog</span> <span class="count" data-count="trains">–</span>
+    </label>
+    <label class="layer" data-layer="autobahn">
+      <input type="checkbox" checked /> <span class="swatch" style="--c: var(--traffic)"></span>
+      <span class="name">Autobahn</span> <span class="count" data-count="autobahn">–</span>
+    </label>
+    <label class="layer" data-layer="webcams">
+      <input type="checkbox" /> <span class="swatch" style="--c: var(--webcam)"></span>
+      <span class="name">Webcams</span> <span class="count" data-count="webcams">–</span>
+    </label>
+    <label class="layer" data-layer="alarms">
+      <input type="checkbox" checked /> <span class="swatch" style="--c: var(--alarm)"></span>
+      <span class="name">112-alarmer</span> <span class="count" data-count="alarms">–</span>
+    </label>
+    <label class="layer" data-layer="radar">
+      <input type="checkbox" checked /> <span class="swatch" style="--c: var(--radar)"></span>
+      <span class="name">Regnradar</span> <span class="count" data-count="radar">–</span>
+    </label>
+    <label class="layer" data-layer="lightning">
+      <input type="checkbox" checked /> <span class="swatch" style="--c: var(--lightning)"></span>
+      <span class="name">Lyn</span> <span class="count" data-count="lightning">–</span>
+    </label>
+    <label class="layer" data-layer="energy">
+      <input type="checkbox" checked /> <span class="swatch" style="--c: var(--energy)"></span>
+      <span class="name">Strøm DK1</span>
+    </label>
+    </aside>
+  </div>
+
+  <div id="energy" aria-label="Elsystem DK1"></div>
+
+  <section id="stats" aria-label="Beredskabsalarmer" hidden>
+    <header>
+      <h2>Beredskabsalarmer</h2>
+      <button id="stats-close" aria-label="Luk">×</button>
+    </header>
+    <nav class="months">
+      <button id="stats-prev" aria-label="Forrige måned">‹</button>
+      <strong id="stats-month">–</strong>
+      <button id="stats-next" aria-label="Næste måned">›</button>
+      <button id="stats-csv" class="small" title="Hent som CSV">CSV</button>
+    </nav>
+    <div id="stats-scroll">
+      <div id="stats-body"></div>
+      <h3 class="sub">Seneste alarmer</h3>
+      <ol id="recent-alarms"></ol>
+      <footer>Kilde: www.odin.dk/112puls · position = brandstation, ikke hændelsen</footer>
+    </div>
+  </section>
+
+  <div id="radar-ctl" aria-label="Regnradar afspilning" hidden></div>
+
+  <div id="status"><span data-status>starter…</span></div>
+
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
