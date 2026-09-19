@@ -19,6 +19,57 @@ const COMPASS = ['N', 'NNØ', 'NØ', 'ØNØ', 'Ø', 'ØSØ', 'SØ', 'SSØ', 'S',
 const wmo = (c) => WMO[c] ?? ['–', ''];
 const dir = (d) => (d == null ? '' : COMPASS[Math.round(d / 22.5) % 16]);
 const hhmm = (iso) => iso.slice(11, 16);
+// Rain (bars, left axis in mm) and optionally temperature (line, right axis) as one SVG.
+// Scale snaps to a readable step so a 0,1 mm drizzle doesn't look like a downpour.
+const STEPS = [0.5, 1, 2, 5, 10, 20, 50];
+function chart(rows, { step, labelEvery, temp = false }) {
+  if (!rows.length) return '<p class="muted">Ingen data.</p>';
+  const W = 320, H = 96, padL = 22, padR = temp ? 24 : 6, padT = 8, padB = 16;
+  const iw = W - padL - padR, ih = H - padT - padB;
+  const rainMax = Math.max(...rows.map((r) => r.precipitation ?? 0));
+  const top = STEPS.find((v) => v >= rainMax * 1.15) ?? STEPS.at(-1);
+  const bw = iw / rows.length;
+  const x = (i) => padL + i * bw;
+  const yRain = (v) => padT + ih - Math.min(1, (v ?? 0) / top) * ih;
+
+  const temps = rows.map((r) => r.temperature_2m).filter((v) => v != null);
+  const tMin = temps.length ? Math.min(...temps) : 0;
+  const tMax = temps.length ? Math.max(...temps) : 1;
+  const tSpan = Math.max(1, tMax - tMin);
+  const yTemp = (v) => padT + ih - ((v - tMin) / tSpan) * (ih * 0.8) - ih * 0.1;
+
+  const grid = [0, 0.5, 1]
+    .map((f) => `<line x1="${padL}" x2="${W - padR}" y1="${padT + ih - f * ih}" y2="${padT + ih - f * ih}" class="grid" />
+      <text x="${padL - 4}" y="${padT + ih - f * ih + 3}" class="ax" text-anchor="end">${f === 0 ? '0' : String(top * f).replace('.', ',')}</text>`)
+    .join('');
+
+  const bars = rows
+    .map((r, i) => {
+      const v = r.precipitation ?? 0;
+      const y = yRain(v);
+      const h = padT + ih - y;
+      const prob = r.precipitation_probability;
+      return `<g class="bar"><title>${hhmm(r.time)} · ${v.toFixed(1).replace('.', ',')} mm${prob != null ? ` · ${prob} %` : ''}${r.temperature_2m != null ? ` · ${r.temperature_2m.toFixed(1).replace('.', ',')} °C` : ''}</title>
+        <rect x="${x(i) + bw * 0.12}" y="${padT}" width="${bw * 0.76}" height="${ih}" class="hit" />
+        ${v > 0 ? `<rect x="${x(i) + bw * 0.12}" y="${y}" width="${bw * 0.76}" height="${Math.max(1.5, h)}" rx="1" class="rain" />` : ''}</g>`;
+    })
+    .join('');
+
+  const line = temp && temps.length
+    ? `<polyline class="temp" points="${rows.map((r, i) => (r.temperature_2m == null ? '' : `${(x(i) + bw / 2).toFixed(1)},${yTemp(r.temperature_2m).toFixed(1)}`)).filter(Boolean).join(' ')}" />
+       <text x="${W - padR + 3}" y="${yTemp(rows.at(-1).temperature_2m) + 3}" class="ax temp">${Math.round(rows.at(-1).temperature_2m)}°</text>`
+    : '';
+
+  const labels = rows
+    .map((r, i) => (i % labelEvery === 0 ? `<text x="${x(i) + bw / 2}" y="${H - 4}" class="ax" text-anchor="middle">${hhmm(r.time)}</text>` : ''))
+    .join('');
+
+  const dry = rainMax === 0 ? `<text x="${padL + iw / 2}" y="${padT + ih / 2}" class="dry" text-anchor="middle">ingen nedbør</text>` : '';
+
+  return `<svg viewBox="0 0 ${W} ${H}" class="fchart" preserveAspectRatio="none">${grid}${bars}${line}${dry}${labels}
+    <text x="${padL - 4}" y="${padT - 1}" class="ax unit" text-anchor="end">mm</text></svg>`;
+}
+
 const num = (v, unit, dec = 0) => (v == null ? '–' : `${v.toFixed(dec).replace('.', ',')} ${unit}`);
 
 export class ForecastLayer {
@@ -88,16 +139,11 @@ export class ForecastLayer {
     const c = d.current ?? {};
     const [txt, icon] = wmo(c.weather_code);
     const rain = d.minutely.filter((m) => Date.parse(m.time) >= Date.now() - 900_000).slice(0, 24);
-    const rainMax = Math.max(0.4, ...rain.map((m) => m.precipitation ?? 0));
     const soon = rain.find((m) => (m.precipitation ?? 0) > 0.05);
     const nextRain = soon ? `Nedbør fra ca. ${hhmm(soon.time)}` : 'Ingen nedbør de næste 6 timer';
-
     const hours = d.hourly.filter((h) => Date.parse(h.time) >= Date.now() - 1800_000).slice(0, 24);
-    const hMax = Math.max(0.4, ...hours.map((h) => h.precipitation ?? 0));
-
-    const bar = (v, max, cls) => `<span class="track"><span class="fill ${cls}" style="height:${Math.max(2, ((v ?? 0) / max) * 100)}%"></span></span>`;
-
     const coords = `${Math.abs(d.lat).toFixed(3)}° ${d.lat >= 0 ? 'N' : 'S'}, ${Math.abs(d.lon).toFixed(3)}° ${d.lon >= 0 ? 'Ø' : 'V'}`;
+
     return `<div class="popup forecast">
       <h3>${icon} ${esc(d.place ?? 'Vejr her')}</h3>
       <p class="where">${esc(txt)} · <span class="muted">${coords}</span></p>
@@ -116,12 +162,8 @@ export class ForecastLayer {
         <button type="button" data-tab="hour">24 timer</button>
         <button type="button" data-tab="days">3 dage</button>
       </div>
-      <div data-pane="min" class="chart">
-        ${rain.map((m) => `<span class="col" title="${hhmm(m.time)} · ${num(m.precipitation, 'mm', 1)}">${bar(m.precipitation, rainMax, 'rain')}<i>${m.time.slice(14, 16) === '00' ? hhmm(m.time) : ''}</i></span>`).join('')}
-      </div>
-      <div data-pane="hour" class="chart" hidden>
-        ${hours.map((h) => `<span class="col" title="${hhmm(h.time)} · ${num(h.temperature_2m, '°C', 1)} · ${num(h.precipitation, 'mm', 1)} · ${h.precipitation_probability ?? 0} %">${bar(h.precipitation, hMax, 'rain')}<b>${h.temperature_2m != null ? Math.round(h.temperature_2m) : ''}</b><i>${['00', '06', '12', '18'].includes(h.time.slice(11, 13)) ? hhmm(h.time) : ''}</i></span>`).join('')}
-      </div>
+      <div data-pane="min">${chart(rain, { step: 15, labelEvery: 4 })}</div>
+      <div data-pane="hour" hidden>${chart(hours, { step: 60, labelEvery: 3, temp: true })}</div>
       <div data-pane="days" hidden>
         <table class="days">${d.daily
           .map((day) => {

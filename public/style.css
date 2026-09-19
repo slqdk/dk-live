@@ -227,12 +227,16 @@ button.link:hover { color: var(--alarm); }
 .popup.forecast .tabs button { font-size: 12px; padding: 4px 9px; border-radius: 7px; color: var(--muted); background: rgba(255,255,255,0.05); }
 .popup.forecast .tabs button.active { color: var(--text); background: rgba(255,255,255,0.13); }
 .popup.forecast [hidden] { display: none !important; }
-.popup.forecast .chart { display: flex; align-items: flex-end; gap: 2px; height: 74px; }
-.popup.forecast .col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; }
-.popup.forecast .track { flex: 1; width: 100%; display: flex; align-items: flex-end; background: rgba(255,255,255,0.04); border-radius: 2px; }
-.popup.forecast .fill { width: 100%; border-radius: 2px; background: var(--radar); min-height: 2px; }
-.popup.forecast .col b { font-size: 9px; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
-.popup.forecast .col i { font-size: 9px; font-style: normal; color: var(--muted); white-space: nowrap; }
+.popup.forecast .fchart { width: 100%; height: 96px; display: block; margin: 2px 0 4px; overflow: visible; }
+.popup.forecast .fchart .grid { stroke: rgba(255,255,255,0.08); stroke-width: 1; }
+.popup.forecast .fchart .ax { fill: var(--muted); font-size: 8px; }
+.popup.forecast .fchart .ax.unit { font-size: 7px; }
+.popup.forecast .fchart .ax.temp { fill: var(--traffic); }
+.popup.forecast .fchart .rain { fill: var(--radar); }
+.popup.forecast .fchart .hit { fill: transparent; }
+.popup.forecast .fchart .bar:hover .hit { fill: rgba(255,255,255,0.06); }
+.popup.forecast .fchart .temp { fill: none; stroke: var(--traffic); stroke-width: 1.6; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.popup.forecast .fchart .dry { fill: var(--muted); font-size: 10px; }
 .popup.forecast table.days { width: 100%; border-collapse: collapse; font-size: 12px; }
 .popup.forecast table.days th { text-align: left; font-weight: 500; padding: 4px 6px 4px 0; white-space: nowrap; }
 .popup.forecast table.days td { padding: 4px 6px 4px 0; }
