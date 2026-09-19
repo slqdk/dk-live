@@ -34,7 +34,7 @@ til de offentlige API'er, og de fleste lag virker helt uden nøgler.
 - **112-alarmer** fra ODIN placeret ved den udrykkende brandstation, med statistik pr. måned
 - **Trafik**: hændelser fra Vejdirektoratet, tysk Autobahn, og farvelagte motorveje efter
   hastighed (grøn/gul/rød) som på Google Maps
-- **Vejr**: regnradar med afspilning af de sidste 2 timer plus 30 minutters prognose
+- **Vejr**: regnradar med afspilning af de sidste 2 timer plus 30 minutters prognose, og klik hvor som helst på kortet for en punktprognose
 - **Lufthavne** med baner, frekvenser, live METAR og hvilke fly der står på jorden eller er på vej
 - **Elpriser** for DK1/DK2 kvarter for kvarter samt produktionsmix og CO₂ lige nu
 - **Webcams** fra tyske motorveje, Windy og din egen liste
@@ -54,7 +54,8 @@ til de offentlige API'er, og de fleste lag virker helt uden nøgler.
 | Autobahn (DE) | Autobahn GmbH | nej | 14 motorveje i Slesvig-Holsten og Hamborg |
 | Trafiktæthed | TomTom Traffic Flow | gratis | 2.500 kald/døgn på gratisniveauet |
 | Regnradar | RainViewer | nej | 2 timer bagud, 30 min. prognose |
-| Lyn | DMI lightningdata | gratis | Nedslag den seneste time |
+| Vejr ved klik | Open-Meteo | nej | Klik et sted på kortet: nu, nedbør pr. kvarter i 6 timer, time for time i 2 dage, 3 døgn |
+| Lyn | DMI lightningdata | nej | Nedslag den seneste time. API'et er åbent siden 2026; nøgle er valgfri |
 | Tog | Rejseplanen API 2.0 | gratis | Ikke-kommerciel brug, 50.000 kald/md. |
 | Webcams | Autobahn + Windy + egen liste | gratis* | *Windy kræver nøgle; de tyske er fri |
 | Strøm DK1/DK2 | Energi Data Service | nej | Produktion, CO₂, spotpris |
@@ -154,7 +155,7 @@ Alle nøgler er gratis og til privat brug. De gemmes på serveren i `server/cach
 | TomTom | <https://developer.tomtom.com> | Trafiktæthed |
 | Windy | <https://api.windy.com/keys> | Webcams i Danmark |
 | Rejseplanen | <https://labs.rejseplanen.dk> | Tog |
-| DMI | <https://dmiapi.govcloud.dk> | Lyn |
+| DMI | <https://opendatadocs.dmi.govcloud.dk> | Lyn (valgfri – API'et er åbent) |
 
 Indsæt dem i appen under **⚙ → API-nøgler**. Laget starter med det samme — ingen genstart.
 
@@ -239,6 +240,7 @@ kræves — appen gør det allerede i popups og i kortets hjørne.
 - Trafik: Vejdirektoratet · Autobahn GmbH des Bundes (bund.dev)
 - Trafiktæthed: © TomTom — gratisniveauet er til ikke-kommerciel brug
 - Regnradar: © RainViewer
+- Punktprognose: Open-Meteo.com (CC BY 4.0), baseret på DWD ICON, ECMWF, DMI m.fl.
 - Webcams: Autobahn GmbH · *webcams by Windy* · egne kilder
 - Fly: adsb.lol · adsbdb · fotos fra Planespotters.net med fotografens navn
 - Skibe: AISStream · skibsfotos fra Wikimedia Commons

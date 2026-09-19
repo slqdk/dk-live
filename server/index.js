@@ -14,6 +14,7 @@ import { startWebcams, getAllWebcams, setWindyKey, windyImage } from './webcams.
 import { startEnergy, getEnergy, setArea } from './energy.js';
 import { startAirports, getAirports } from './airports.js';
 import { aircraftPhoto, shipPhoto, setContact } from './photos.js';
+import { forecast } from './forecast.js';
 import { stats as alarmStats, months as alarmMonths, csv as alarmCsv, setIgnore as setStatsIgnore } from './alarmstats.js';
 import { getKey, setKey, onKeyChange, describeKeys, localOnly, isAdmin, PREFS, getPrefs, setPrefs, onPrefChange } from './settings.js';
 import { getLines, getVisitors, recordVisit, forgetVisitors } from './logbook.js';
@@ -54,6 +55,13 @@ app.get('/api/webcams/windy/:id', async (req, res) => {
 });
 app.get('/api/energy', (_req, res) => res.json(getEnergy()));
 app.get('/api/airports', (_req, res) => res.json(getAirports()));
+app.get('/api/forecast', async (req, res) => {
+  try {
+    res.set('Cache-Control', 'public, max-age=300').json(await forecast(Number(req.query.lat), Number(req.query.lon)));
+  } catch (err) {
+    res.status(502).json({ error: err.message });
+  }
+});
 app.get('/api/stats/alarms', (req, res) => {
   const list = alarmMonths();
   const month = req.query.month ?? list.at(-1) ?? new Date().toISOString().slice(0, 7);

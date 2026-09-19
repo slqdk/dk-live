@@ -199,6 +199,29 @@ button.link:hover { color: var(--alarm); }
 .popup .photo img { display: block; width: 100%; max-height: 200px; object-fit: cover; border-radius: 6px; background: rgba(255,255,255,0.05); }
 .popup .photo .credit { font-size: 10px; color: var(--muted); margin-top: 3px; }
 
+/* Forecast popup */
+.popup.forecast h3 { font-size: 15px; }
+.popup.forecast .now { display: flex; align-items: center; gap: 12px; margin: 2px 0 6px; }
+.popup.forecast .temp { font-size: 30px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.popup.forecast .now dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 1px 8px; font-size: 12px; flex: 1; }
+.popup.forecast .now dt { color: var(--muted); }
+.popup.forecast .now dd { margin: 0; }
+.popup.forecast .lead { margin: 0 0 8px; font-size: 12px; color: var(--radar); }
+.popup.forecast .err { color: var(--alarm); font-size: 13px; margin: 4px 0; }
+.popup.forecast .tabs { display: flex; gap: 2px; margin-bottom: 6px; }
+.popup.forecast .tabs button { font-size: 12px; padding: 4px 9px; border-radius: 7px; color: var(--muted); background: rgba(255,255,255,0.05); }
+.popup.forecast .tabs button.active { color: var(--text); background: rgba(255,255,255,0.13); }
+.popup.forecast .chart { display: flex; align-items: flex-end; gap: 2px; height: 74px; }
+.popup.forecast .col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; }
+.popup.forecast .track { flex: 1; width: 100%; display: flex; align-items: flex-end; background: rgba(255,255,255,0.04); border-radius: 2px; }
+.popup.forecast .fill { width: 100%; border-radius: 2px; background: var(--radar); min-height: 2px; }
+.popup.forecast .col b { font-size: 9px; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
+.popup.forecast .col i { font-size: 9px; font-style: normal; color: var(--muted); white-space: nowrap; }
+.popup.forecast table.days { width: 100%; border-collapse: collapse; font-size: 12px; }
+.popup.forecast table.days th { text-align: left; font-weight: 500; padding: 4px 6px 4px 0; white-space: nowrap; }
+.popup.forecast table.days td { padding: 4px 6px 4px 0; }
+.popup.forecast table.days td.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
 /* Airport popup */
 .popup.airport h4 { margin: 8px 0 4px; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
 .popup.airport code { font-size: 11px; word-break: break-all; }

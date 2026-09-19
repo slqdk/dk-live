@@ -3,7 +3,9 @@
 import { BBOX, log } from './bbox.js';
 
 const RV_URL = 'https://api.rainviewer.com/public/weather-maps.json';
-const DMI_URL = 'https://dmigw.govcloud.dk/v2/lightningdata/collections/observation/items';
+// DMI moved to opendataapi.dmi.dk in Dec 2025; the old dmigw.govcloud.dk host retired
+// 30 June 2026. The new endpoint is open — a key is sent only if one is configured.
+const DMI_URL = 'https://opendataapi.dmi.dk/v2/lightningdata/collections/observation/items';
 const UA = 'dk-live/0.1 (personal dashboard)';
 
 let radar = { updated: 0, status: 'not started', host: null, frames: [] };
@@ -29,22 +31,32 @@ async function pollRadar() {
 
 async function pollLightning(apiKey) {
   try {
-    const since = new Date(Date.now() - 60 * 60_000).toISOString();
-    const url = `${DMI_URL}?bbox=${BBOX.west},${BBOX.south},${BBOX.east},${BBOX.north}&datetime=${since}/..&limit=5000&api-key=${apiKey}`;
-    const res = await fetch(url, { headers: { 'User-Agent': UA } });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const since = new Date(Date.now() - 60 * 60_000).toISOString().replace(/\.\d+Z$/, 'Z');
+    const q = new URLSearchParams({
+      bbox: `${BBOX.west},${BBOX.south},${BBOX.east},${BBOX.north}`,
+      datetime: `${since}/..`,
+      limit: '5000',
+    });
+    if (apiKey) q.set('api-key', apiKey);
+    const res = await fetch(`${DMI_URL}?${q}`, { headers: { 'User-Agent': UA } });
+    if (!res.ok) {
+      log('lightning', `HTTP ${res.status}: ${(await res.text()).slice(0, 160).replace(/\s+/g, ' ')}`);
+      throw new Error(`HTTP ${res.status}`);
+    }
     const json = await res.json();
     lightning = {
       enabled: true,
       updated: Date.now(),
       status: `ok, ${json.features?.length ?? 0} strikes last hour`,
-      strikes: (json.features ?? []).map((f) => ({
-        lon: f.geometry.coordinates[0],
-        lat: f.geometry.coordinates[1],
-        time: Date.parse(f.properties.observed),
-        type: f.properties.type, // 0 = cloud-to-ground, 1 = cloud-to-cloud
-        amp: f.properties.amp,
-      })),
+      strikes: (json.features ?? [])
+        .filter((f) => f.geometry?.coordinates?.length === 2)
+        .map((f) => ({
+          lon: f.geometry.coordinates[0],
+          lat: f.geometry.coordinates[1],
+          time: Date.parse(f.properties.observed),
+          type: Number(f.properties.type), // 0 = cloud-to-ground, 1 = cloud-to-cloud
+          amp: f.properties.amp,
+        })),
     };
   } catch (err) {
     lightning.status = `failed: ${err.cause?.code ?? err.message}`;
@@ -63,11 +75,10 @@ export function startWeather(dmiKey) {
 
 export function setLightningKey(dmiKey) {
   clearInterval(lightningTimer);
-  lightning = { enabled: false, updated: 0, status: 'no key', strikes: [] };
-  if (!dmiKey) return log('lightning', 'no DMI_LIGHTNING_KEY, layer disabled');
+  lightning = { enabled: true, updated: 0, status: 'starter…', strikes: [] };
   pollLightning(dmiKey);
   lightningTimer = setInterval(() => pollLightning(dmiKey), 2 * 60_000);
-  log('lightning', 'polling DMI every 2 min');
+  log('lightning', `polling DMI every 2 min${dmiKey ? ' (med nøgle)' : ' (uden nøgle)'}`);
 }
 
 export const getRadar = () => radar;

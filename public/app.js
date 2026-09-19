@@ -9,6 +9,7 @@ import { AutobahnLayer } from './layers/autobahn.js';
 import { WebcamsLayer } from './layers/webcams.js';
 import { FlowLayer } from './layers/flow.js';
 import { AirportsLayer } from './layers/airports.js';
+import { ForecastLayer } from './layers/forecast.js';
 import { initEnergy } from './energy.js';
 import { initSettings } from './settings.js';
 import { initStats } from './stats.js';
@@ -51,6 +52,7 @@ map.on('load', async () => {
   // Order matters: earlier layers draw underneath later ones.
   const layers = {
     radar: new RadarLayer(map),
+    forecast: new ForecastLayer(map),
     flow: new FlowLayer(map),
     lightning: new LightningLayer(map),
     traffic: new TrafficLayer(map),

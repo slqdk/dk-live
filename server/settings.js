@@ -96,7 +96,7 @@ export function setPrefs(patch) {
 export const KEYS = [
   { id: 'AISSTREAM_API_KEY', label: 'AISStream (skibe)', url: 'https://aisstream.io' },
   { id: 'REJSEPLANEN_API_KEY', label: 'Rejseplanen (tog)', url: 'https://labs.rejseplanen.dk' },
-  { id: 'DMI_LIGHTNING_KEY', label: 'DMI lightningdata (lyn)', url: 'https://dmiapi.govcloud.dk' },
+  { id: 'DMI_LIGHTNING_KEY', label: 'DMI (lyn) – valgfri, API\'et er åbent', url: 'https://opendatadocs.dmi.govcloud.dk/en/Authentication' },
   { id: 'TOMTOM_API_KEY', label: 'TomTom (trafiktæthed)', url: 'https://developer.tomtom.com' },
   { id: 'WINDY_API_KEY', label: 'Windy Webcams (webcams DK)', url: 'https://api.windy.com/keys' },
 ];
