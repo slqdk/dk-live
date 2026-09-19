@@ -61,7 +61,7 @@ export class ForecastLayer {
   async show(lngLat) {
     const popup = new SmartPopup({ offset: 6, maxWidth: '360px' })
       .setLngLat(lngLat)
-      .setHTML('<div class="popup forecast"><h3>Vejr her</h3><p class="muted">Henter…</p></div>')
+      .setHTML('<div class="popup forecast"><h3>Vejr</h3><p class="muted">Henter…</p></div>')
       .addTo(this.map);
     try {
       const d = await (await fetch(`/api/forecast?lat=${lngLat.lat.toFixed(4)}&lon=${lngLat.lng.toFixed(4)}`)).json();
@@ -80,7 +80,7 @@ export class ForecastLayer {
         popup.fit();
       });
     } catch (err) {
-      popup.setHTML(`<div class="popup forecast"><h3>Vejr her</h3><p class="err">${esc(err.message)}</p></div>`);
+      popup.setHTML(`<div class="popup forecast"><h3>Vejr</h3><p class="err">${esc(err.message)}</p></div>`);
     }
   }
 
@@ -97,8 +97,10 @@ export class ForecastLayer {
 
     const bar = (v, max, cls) => `<span class="track"><span class="fill ${cls}" style="height:${Math.max(2, ((v ?? 0) / max) * 100)}%"></span></span>`;
 
+    const coords = `${Math.abs(d.lat).toFixed(3)}° ${d.lat >= 0 ? 'N' : 'S'}, ${Math.abs(d.lon).toFixed(3)}° ${d.lon >= 0 ? 'Ø' : 'V'}`;
     return `<div class="popup forecast">
-      <h3>${icon} ${esc(txt)}</h3>
+      <h3>${icon} ${esc(d.place ?? 'Vejr her')}</h3>
+      <p class="where">${esc(txt)} · <span class="muted">${coords}</span></p>
       <div class="now">
         <div class="temp">${num(c.temperature_2m, '°C', 1)}</div>
         <dl>

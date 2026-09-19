@@ -215,6 +215,7 @@ button.link:hover { color: var(--alarm); }
 
 /* Forecast popup */
 .popup.forecast h3 { font-size: 15px; }
+.popup.forecast .where { margin: 0 0 6px; font-size: 12px; }
 .popup.forecast .now { display: flex; align-items: center; gap: 12px; margin: 2px 0 6px; }
 .popup.forecast .temp { font-size: 30px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .popup.forecast .now dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 1px 8px; font-size: 12px; flex: 1; }
