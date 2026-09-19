@@ -14,7 +14,20 @@
 
   <button id="reset" class="chip">Hele kortet</button>
   <button id="stats-top" class="chip" title="Beredskabsalarmer – statistik og seneste alarmer">Beredskabsalarmer</button>
-  <button id="settings-open" class="chip" aria-label="Indstillinger" title="Indstillinger">⚙</button>
+  <button id="logs-open" class="chip admin-only" aria-label="Log" title="Serverlog og besøgende">☰</button>
+  <button id="settings-open" class="chip admin-only" aria-label="Indstillinger" title="Indstillinger">⚙</button>
+
+  <section id="logs" aria-label="Serverlog" hidden>
+    <header>
+      <h2>Log</h2>
+      <button id="logs-close" aria-label="Luk">×</button>
+    </header>
+    <nav id="logs-tabs">
+      <button type="button" data-tab="log" class="active">Serverlog</button>
+      <button type="button" data-tab="visitors">Besøgende</button>
+    </nav>
+    <div id="logs-body"></div>
+  </section>
 
   <section id="settings" aria-label="Indstillinger" hidden>
     <header>
@@ -45,7 +58,7 @@
       <span class="name">Skibe</span> <span class="count" data-count="ships">–</span>
     </label>
     <label class="layer" data-layer="flow">
-      <input type="checkbox" /> <span class="swatch" style="--c: var(--flow)"></span>
+      <input type="checkbox" checked /> <span class="swatch" style="--c: var(--flow)"></span>
       <span class="name">Trafiktæthed</span> <span class="count" data-count="flow">–</span>
     </label>
     <label class="layer" data-layer="traffic">
@@ -61,7 +74,7 @@
       <span class="name">Autobahn</span> <span class="count" data-count="autobahn">–</span>
     </label>
     <label class="layer" data-layer="webcams">
-      <input type="checkbox" /> <span class="swatch" style="--c: var(--webcam)"></span>
+      <input type="checkbox" checked /> <span class="swatch" style="--c: var(--webcam)"></span>
       <span class="name">Webcams</span> <span class="count" data-count="webcams">–</span>
     </label>
     <label class="layer" data-layer="alarms">

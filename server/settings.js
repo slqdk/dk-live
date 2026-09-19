@@ -31,6 +31,7 @@ export const PREFS = {
   alarmPages: { group: 'data', label: '112 – hent sider à 25 alarmer', type: 'int', min: 1, max: 8, default: 3, server: true },
   flightsPoll: { group: 'data', label: 'Fly – hent hvert (sek.)', type: 'int', min: 10, max: 120, default: 15, server: true },
   priceArea: { group: 'data', label: 'Elområde', type: 'select', options: ['DK1', 'DK2'], default: 'DK1', server: true },
+  layers: { group: 'hidden', label: 'Synlige lag', type: 'json', default: null },
   hourlyPrices: { group: 'data', label: 'Elpriser pr. time (i stedet for kvarter)', type: 'bool', default: false },
   statsDetailed: { group: 'data', label: '112-statistik – vis hele meldingen (ellers kun kategori før bindestregen)', type: 'bool', default: true, server: true },
   statsIgnore: { group: 'data', label: '112-statistik – ignorér kategorier (kommasepareret)', type: 'text', max: 300, default: 'Eftersyn', server: true },
@@ -69,6 +70,8 @@ function validate(id, value) {
       return Boolean(value);
     case 'text':
       return String(value).trim().slice(0, d.max ?? 200);
+    case 'json':
+      return value && typeof value === 'object' ? value : null;
     case 'bounds': {
       const b = value;
       if (!Array.isArray(b) || b.length !== 2 || !b.every((p) => Array.isArray(p) && p.length === 2 && p.every(Number.isFinite))) throw new Error(`${id}: bad bounds`);
@@ -143,10 +146,15 @@ function ip4(ip) {
   return m ? ((+m[1] << 24) | (+m[2] << 16) | (+m[3] << 8) | +m[4]) >>> 0 : null;
 }
 
-export function localOnly(req, res, next) {
+export function isAdmin(req) {
   const ip = req.socket.remoteAddress ?? '';
-  if (['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(ip)) return next();
+  if (['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(ip)) return true;
   const n = ip4(ip);
-  if (n != null && ALLOW.some((a) => (n & a.mask) === a.net)) return next();
-  res.status(403).json({ error: `settings can only be changed from the server itself or from SETTINGS_ALLOW (your address: ${ip.replace(/^::ffff:/, '')})` });
+  return n != null && ALLOW.some((a) => (n & a.mask) === a.net);
+}
+
+export function localOnly(req, res, next) {
+  if (isAdmin(req)) return next();
+  const ip = (req.socket.remoteAddress ?? '').replace(/^::ffff:/, '');
+  res.status(403).json({ error: `kun muligt fra hjemmenetværket (din adresse: ${ip})` });
 }

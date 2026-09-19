@@ -11,7 +11,7 @@ export class FlowLayer {
     this.map = map;
     this.count = null;
     this.error = null;
-    this.visible = false;
+    this.visible = true;
   }
 
   async init() {
@@ -34,7 +34,7 @@ export class FlowLayer {
         source: 'flow',
         'source-layer': SOURCE_LAYER,
         filter: ['in', ['get', 'road_category'], ['literal', ['motorway', 'trunk']]],
-        layout: { visibility: 'none', 'line-cap': 'round', 'line-join': 'round' },
+        layout: { visibility: this.visible ? 'visible' : 'none', 'line-cap': 'round', 'line-join': 'round' },
         paint: {
           'line-color': [
             'step', ['coalesce', ['get', 'traffic_level'], 1],

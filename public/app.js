@@ -12,11 +12,15 @@ import { AirportsLayer } from './layers/airports.js';
 import { initEnergy } from './energy.js';
 import { initSettings } from './settings.js';
 import { initStats } from './stats.js';
+import { initLogs } from './logs.js';
 import { prefs, loadPrefs, onPrefs } from './prefs.js';
 
 // Keep in sync with server/bbox.js
 export const BBOX = [[7.5, 53.3], [13.0, 57.9]];
 const PAD = 1.5; // how far past the bbox the user may pan
+
+const admin = await fetch('/api/whoami').then((r) => r.json()).then((d) => d.admin).catch(() => false);
+if (admin) document.body.classList.add('admin');
 
 await loadPrefs();
 const homeBounds = () => prefs.homeView ?? BBOX;
@@ -67,18 +71,22 @@ map.on('load', async () => {
     if ('landBrightness' in patch) applyTheme(map, p.landBrightness);
   });
 
-  // Toggles — remembered per browser
-  let saved = {};
-  try { saved = JSON.parse(localStorage.getItem('dk-live-layers') ?? '{}'); } catch {}
+  // Toggles — the server's `layers` pref is the master for every device. Admins change it;
+  // everyone else can flip a layer for their own session only.
+  const saved = { ...(prefs.layers ?? {}) };
   document.querySelectorAll('.layer').forEach((row) => {
     const key = row.dataset.layer;
     const input = row.querySelector('input');
     if (key in saved) input.checked = saved[key];
     if (layers[key]) layers[key].setVisible(input.checked);
-    input.addEventListener('change', (e) => {
+    else if (key === 'energy') document.getElementById('energy').hidden = !input.checked;
+    input.addEventListener('change', async (e) => {
       layers[key]?.setVisible(e.target.checked);
       saved[key] = e.target.checked;
-      localStorage.setItem('dk-live-layers', JSON.stringify(saved));
+      if (!admin) return;
+      try {
+        await fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prefs: { layers: saved } }) });
+      } catch {}
     });
   });
 
@@ -99,6 +107,7 @@ map.on('load', async () => {
   initEnergy();
   initSettings(map, BBOX);
   initStats();
+  if (admin) initLogs();
   document.getElementById('stats-count').addEventListener('click', (e) => e.preventDefault(), true);
 
   const layersMenu = document.getElementById('layers');

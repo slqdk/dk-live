@@ -15,7 +15,9 @@ import { startEnergy, getEnergy, setArea } from './energy.js';
 import { startAirports, getAirports } from './airports.js';
 import { aircraftPhoto, shipPhoto, setContact } from './photos.js';
 import { stats as alarmStats, months as alarmMonths, csv as alarmCsv, setIgnore as setStatsIgnore } from './alarmstats.js';
-import { getKey, setKey, onKeyChange, describeKeys, localOnly, PREFS, getPrefs, setPrefs, onPrefChange } from './settings.js';
+import { getKey, setKey, onKeyChange, describeKeys, localOnly, isAdmin, PREFS, getPrefs, setPrefs, onPrefChange } from './settings.js';
+import { getLines, getVisitors, recordVisit, forgetVisitors } from './logbook.js';
+import { log as logLine } from './bbox.js';
 import { setFlowKey, flowEnabled, flowTile } from './flow.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -25,6 +27,10 @@ const HOST = process.env.HOST ?? '0.0.0.0';
 const app = express();
 app.disable('x-powered-by');
 app.use(express.json());
+app.use((req, _res, next) => {
+  recordVisit(req, isAdmin(req));
+  next();
+});
 app.use(express.static(path.join(__dirname, '..', 'public'), { maxAge: 0 }));
 
 app.get('/api/flights', (_req, res) => res.json(getFlights()));
@@ -69,6 +75,13 @@ app.get('/api/flow/:z/:x/:y.pbf', async (req, res) => {
   }
 });
 // Public: every client needs the prefs to render. Keys never go here.
+app.get('/api/whoami', (req, res) => res.json({ admin: isAdmin(req) }));
+app.get('/api/logs', localOnly, (req, res) => res.set('Cache-Control', 'no-store').json({ ...getLines(Number(req.query.since) || 0), visitors: getVisitors() }));
+app.post('/api/logs/forget-visitors', localOnly, (_req, res) => {
+  forgetVisitors();
+  logLine('logbook', 'visitor list cleared');
+  res.json({ ok: true });
+});
 app.get('/api/config', (_req, res) => res.json({ prefs: getPrefs(), schema: PREFS }));
 // Owner only: keys + prefs editing
 app.get('/api/settings', localOnly, (_req, res) => res.json({ keys: describeKeys(), prefs: getPrefs(), schema: PREFS }));

@@ -10,6 +10,9 @@ export function inBbox(lat, lon) {
   return lat >= BBOX.south && lat <= BBOX.north && lon >= BBOX.west && lon <= BBOX.east;
 }
 
+import { addLine } from './logbook.js';
+
 export function log(scope, ...args) {
   console.log(new Date().toISOString().slice(11, 19), `[${scope}]`, ...args);
+  addLine(scope, args);
 }

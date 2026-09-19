@@ -26,9 +26,9 @@ Node 20+ is fine. No build step — `public/` is served as-is.
 | Trafik | Vejdirektoratet (trafikkort GeoJSON feed) | none | Incidents, roadblocks, queues on state roads, ~3 min cadence. Webcams no longer exist — Vejdirektoratet removed them |
 | Tog | Rejseplanen API 2.0 `journeypos` | free | Live train positions in the bbox, 1/min. Buses excluded via `products` mask in `server/trains.js` |
 | Autobahn | verkehr.autobahn.de (Autobahn GmbH) | none | Warnings, closures and roadworks on 14 north-German motorways |
-| Webcams | Autobahn GmbH + Windy Webcams API + `data/webcams-dk.json` | Windy: free | German motorway cameras (no key), Danish/other public cameras via Windy (key, attribution required), plus your own list. Off by default |
+| Webcams | Autobahn GmbH + Windy Webcams API + `data/webcams-dk.json` | Windy: free | German motorway cameras (no key), Danish/other public cameras via Windy (key, attribution required), plus your own list. |
 | Strøm DK1 | Energi Data Service (Energinet) | none | Wind/solar/central production, CO2 intensity, spot price, interconnector flow |
-| Trafiktæthed | TomTom Traffic Flow tiles | free | Green/amber/red road colouring, proxied through the server. Off by default, 2,500 tiles/day on the free tier |
+| Trafiktæthed | TomTom Traffic Flow tiles | free | Green/amber/red road colouring, proxied through the server. 2,500 tiles/day on the free tier |
 | Lufthavne | OurAirports + aviationweather.gov METAR | none | Runways, frequencies, live weather, aircraft on ground / nearby / inbound from the flight layers |
 | Regnradar | RainViewer public API | none | Composite radar, latest frame, max native zoom 7 |
 | Lyn | DMI lightningdata | free | Strikes in the last hour |
