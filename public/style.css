@@ -66,6 +66,16 @@ button { background: none; border: 0; cursor: pointer; }
 #settings-open { position: absolute; top: max(12px, env(safe-area-inset-top)); right: 12px; z-index: 2; font-size: 18px; padding: 6px 12px; line-height: 1.2; }
 #stats-top { position: absolute; top: max(12px, env(safe-area-inset-top)); right: 66px; z-index: 2; }
 body.admin #stats-top { right: 112px; }
+#weather-open { position: absolute; top: max(12px, env(safe-area-inset-top)); right: 190px; z-index: 2; }
+body.admin #weather-open { right: 236px; }
+#weather-open.active { background: var(--radar); color: #0b1220; border-color: transparent; }
+#weather-hint {
+  position: absolute; top: 60px; left: 50%; transform: translateX(-50%); z-index: 3;
+  padding: 7px 14px; border-radius: 999px; font-size: 13px; cursor: pointer;
+  background: var(--radar); color: #0b1220; font-weight: 500;
+}
+#weather-hint[hidden] { display: none; }
+#weather-hint span { opacity: 0.7; font-weight: 400; }
 #logs-open { position: absolute; top: max(12px, env(safe-area-inset-top)); right: 66px; z-index: 2; font-size: 16px; padding: 7px 12px; line-height: 1.2; }
 .admin-only { display: none; }
 body.admin .admin-only { display: block; }
@@ -211,6 +221,7 @@ button.link:hover { color: var(--alarm); }
 .popup.forecast .tabs { display: flex; gap: 2px; margin-bottom: 6px; }
 .popup.forecast .tabs button { font-size: 12px; padding: 4px 9px; border-radius: 7px; color: var(--muted); background: rgba(255,255,255,0.05); }
 .popup.forecast .tabs button.active { color: var(--text); background: rgba(255,255,255,0.13); }
+.popup.forecast [hidden] { display: none !important; }
 .popup.forecast .chart { display: flex; align-items: flex-end; gap: 2px; height: 74px; }
 .popup.forecast .col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; }
 .popup.forecast .track { flex: 1; width: 100%; display: flex; align-items: flex-end; background: rgba(255,255,255,0.04); border-radius: 2px; }
@@ -225,7 +236,9 @@ button.link:hover { color: var(--alarm); }
 /* Airport popup */
 .popup.airport h4 { margin: 8px 0 4px; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
 .popup.airport code { font-size: 11px; word-break: break-all; }
-.popup .links { margin-top: 8px; font-size: 12px; }
+.popup .links { margin-top: 8px; font-size: 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.popup.forecast button.pick { font-size: 12px; padding: 4px 9px; border-radius: 7px; background: rgba(255,255,255,0.08); color: var(--text); }
+.popup.forecast button.pick:hover { background: rgba(255,255,255,0.15); }
 .popup .links a.ext { margin-top: 0; }
 .popup .muted { color: var(--muted); }
 .maplibregl-popup-content { max-height: 70vh; overflow-y: auto; }

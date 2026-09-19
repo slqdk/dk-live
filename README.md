@@ -54,7 +54,7 @@ til de offentlige API'er, og de fleste lag virker helt uden nøgler.
 | Autobahn (DE) | Autobahn GmbH | nej | 14 motorveje i Slesvig-Holsten og Hamborg |
 | Trafiktæthed | TomTom Traffic Flow | gratis | 2.500 kald/døgn på gratisniveauet |
 | Regnradar | RainViewer | nej | 2 timer bagud, 30 min. prognose |
-| Vejr ved klik | Open-Meteo | nej | Klik et sted på kortet: nu, nedbør pr. kvarter i 6 timer, time for time i 2 dage, 3 døgn |
+| Vejrudsigt | Open-Meteo | nej | Knappen **Vejr** viser udsigten for kortets midte; vælg et andet sted med "Vælg et andet sted": nu, nedbør pr. kvarter i 6 timer, time for time i 2 dage, 3 døgn |
 | Lyn | DMI lightningdata | nej | Nedslag den seneste time. API'et er åbent siden 2026; nøgle er valgfri |
 | Tog | Rejseplanen API 2.0 | gratis | Ikke-kommerciel brug, 50.000 kald/md. |
 | Webcams | Autobahn + Windy + egen liste | gratis* | *Windy kræver nøgle; de tyske er fri |

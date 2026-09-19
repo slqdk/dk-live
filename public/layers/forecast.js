@@ -31,14 +31,31 @@ export class ForecastLayer {
 
   async init() {
     const map = this.map;
-    // Only fire when the click didn't hit a marker layer
+    this.btn = document.getElementById('weather-open');
+    this.hint = document.getElementById('weather-hint');
+
+    // Button: show the weather where the map is centred. Press again (or the hint) to pick a spot.
+    this.btn.addEventListener('click', () => {
+      if (this.picking) return this.setPicking(false);
+      this.show(map.getCenter());
+    });
+    this.hint.addEventListener('click', () => this.setPicking(false));
+    this.btn.addEventListener('dblclick', () => this.setPicking(true));
+
+    // Pick mode is also reachable from the popup itself
     map.on('click', (e) => {
-      if (!this.enabled) return;
-      const hits = map.queryRenderedFeatures(e.point).filter((f) => /^(flights|military|ships|airports|webcams|alarms|traffic|autobahn|trains|lightning)-/.test(f.layer.id));
-      if (hits.length) return;
+      if (!this.picking) return;
+      this.setPicking(false);
       this.show(e.lngLat);
     });
-    this.count = 'klik på kortet';
+    document.addEventListener('keydown', (e) => e.key === 'Escape' && this.setPicking(false));
+  }
+
+  setPicking(on) {
+    this.picking = on;
+    this.hint.hidden = !on;
+    this.btn.classList.toggle('active', on);
+    this.map.getCanvas().style.cursor = on ? 'crosshair' : '';
   }
 
   async show(lngLat) {
@@ -50,6 +67,10 @@ export class ForecastLayer {
       const d = await (await fetch(`/api/forecast?lat=${lngLat.lat.toFixed(4)}&lon=${lngLat.lng.toFixed(4)}`)).json();
       if (d.error) throw new Error(d.error);
       popup.setHTML(this.render(d));
+      popup.getElement().querySelector('.pick')?.addEventListener('click', () => {
+        popup.remove();
+        this.setPicking(true);
+      });
       popup.getElement().querySelector('[data-tab]')?.closest('.tabs')?.addEventListener('click', (e) => {
         const t = e.target.dataset.tab;
         if (!t) return;
@@ -108,12 +129,13 @@ export class ForecastLayer {
           })
           .join('')}</table>
       </div>
-      <div class="links"><span class="muted">Open-Meteo · ${d.elevation != null ? `${Math.round(d.elevation)} m o.h.` : ''}</span></div>
+      <div class="links"><button type="button" class="pick">Vælg et andet sted ↗</button> <span class="muted">Open-Meteo${d.elevation != null ? ` · ${Math.round(d.elevation)} m o.h.` : ''}</span></div>
     </div>`;
   }
 
   setVisible(on) {
     this.enabled = on;
-    this.count = on ? 'klik på kortet' : 'fra';
+    document.getElementById('weather-open').hidden = !on;
+    if (!on) this.setPicking(false);
   }
 }
