@@ -13,10 +13,12 @@
   <div id="map"></div>
 
   <button id="reset" class="chip">Hele kortet</button>
-  <button id="weather-open" class="chip" title="Vejrudsigt – klik igen for at vælge et sted">Vejr</button>
-  <button id="stats-top" class="chip" title="Beredskabsalarmer – statistik og seneste alarmer">Beredskabsalarmer</button>
-  <button id="logs-open" class="chip admin-only" aria-label="Log" title="Serverlog og besøgende">☰</button>
-  <button id="settings-open" class="chip admin-only" aria-label="Indstillinger" title="Indstillinger">⚙</button>
+  <nav id="topbar">
+    <button id="weather-open" class="chip" title="Vejrudsigt – vælg et sted på kortet">Vejr</button>
+    <button id="stats-top" class="chip" title="Beredskabsalarmer – statistik og seneste alarmer">Beredskabsalarmer</button>
+    <button id="logs-open" class="chip admin-only" aria-label="Log" title="Serverlog og besøgende">☰</button>
+    <button id="settings-open" class="chip admin-only" aria-label="Indstillinger" title="Indstillinger">⚙</button>
+  </nav>
 
   <section id="logs" aria-label="Serverlog" hidden>
     <header>

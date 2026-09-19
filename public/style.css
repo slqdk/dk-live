@@ -31,6 +31,16 @@ button { background: none; border: 0; cursor: pointer; }
 
 /* Region chips — top */
 #reset { position: absolute; top: max(12px, env(safe-area-inset-top)); left: 12px; z-index: 2; }
+
+/* Buttons top right, in one row */
+#topbar {
+  position: absolute; top: max(12px, env(safe-area-inset-top)); right: 12px; z-index: 3;
+  display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end;
+  max-width: calc(100% - 320px);
+}
+#settings-open { font-size: 18px; padding: 6px 12px; line-height: 1.2; }
+#logs-open { font-size: 16px; padding: 7px 12px; line-height: 1.2; }
+#weather-open.active { background: var(--radar); color: #0b1220; border-color: transparent; }
 .chip {
   flex: none; padding: 8px 14px; border-radius: 999px;
   background: var(--panel); border: 1px solid var(--line);
@@ -63,11 +73,6 @@ button { background: none; border: 0; cursor: pointer; }
 .layer input { margin: 0; accent-color: var(--region); }
 .swatch { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
 .count { color: var(--muted); font-variant-numeric: tabular-nums; }
-#settings-open { position: absolute; top: max(12px, env(safe-area-inset-top)); right: 12px; z-index: 2; font-size: 18px; padding: 6px 12px; line-height: 1.2; }
-#stats-top { position: absolute; top: max(12px, env(safe-area-inset-top)); right: 66px; z-index: 2; }
-body.admin #stats-top { right: 112px; }
-#weather-open { position: absolute; top: max(12px, env(safe-area-inset-top)); right: 190px; z-index: 2; }
-body.admin #weather-open { right: 236px; }
 #weather-open.active { background: var(--radar); color: #0b1220; border-color: transparent; }
 #weather-hint {
   position: absolute; top: 60px; left: 50%; transform: translateX(-50%); z-index: 3;
@@ -76,7 +81,6 @@ body.admin #weather-open { right: 236px; }
 }
 #weather-hint[hidden] { display: none; }
 #weather-hint span { opacity: 0.7; font-weight: 400; }
-#logs-open { position: absolute; top: max(12px, env(safe-area-inset-top)); right: 66px; z-index: 2; font-size: 16px; padding: 7px 12px; line-height: 1.2; }
 .admin-only { display: none; }
 body.admin .admin-only { display: block; }
 
@@ -353,7 +357,7 @@ button.link:hover { color: var(--alarm); }
   #energy { right: 12px; width: auto; bottom: auto; max-height: 45%; }
   #layers-menu { max-height: calc(100% - 120px); }
   #stats { left: 12px; right: 12px; width: auto; top: 120px; max-height: calc(100% - 140px); }
-  #stats-top { right: 66px; font-size: 0; padding: 8px 10px; }
+  #stats-top { font-size: 0; padding: 8px 10px; }
   #stats-top::after { content: '112'; font-size: 14px; font-weight: 600; color: var(--alarm); }
   #status { display: none; }
 }
