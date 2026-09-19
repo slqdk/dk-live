@@ -170,6 +170,7 @@ export class SmartPopup extends maplibregl.Popup {
     if (!map) return;
     // Phone: the popup is a fixed bottom sheet (see style.css), nothing to fit.
     if (window.innerWidth <= 640 || prefs.popupPan === false) return;
+    if (this.options.className?.includes('forecast-popup')) return; // docked, nothing to fit
     requestAnimationFrame(() => {
       const el = this.getElement();
       if (!el || !this._map) return;

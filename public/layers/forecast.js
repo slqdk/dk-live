@@ -24,7 +24,7 @@ const hhmm = (iso) => iso.slice(11, 16);
 const STEPS = [0.5, 1, 2, 5, 10, 20, 50];
 function chart(rows, { step, labelEvery, temp = false }) {
   if (!rows.length) return '<p class="muted">Ingen data.</p>';
-  const W = 320, H = 96, padL = 22, padR = temp ? 24 : 6, padT = 8, padB = 16;
+  const W = 520, H = 150, padL = 34, padR = temp ? 34 : 10, padT = 12, padB = 22;
   const iw = W - padL - padR, ih = H - padT - padB;
   const rainMax = Math.max(...rows.map((r) => r.precipitation ?? 0));
   const top = STEPS.find((v) => v >= rainMax * 1.15) ?? STEPS.at(-1);
@@ -38,9 +38,13 @@ function chart(rows, { step, labelEvery, temp = false }) {
   const tSpan = Math.max(1, tMax - tMin);
   const yTemp = (v) => padT + ih - ((v - tMin) / tSpan) * (ih * 0.8) - ih * 0.1;
 
-  const grid = [0, 0.5, 1]
-    .map((f) => `<line x1="${padL}" x2="${W - padR}" y1="${padT + ih - f * ih}" y2="${padT + ih - f * ih}" class="grid" />
-      <text x="${padL - 4}" y="${padT + ih - f * ih + 3}" class="ax" text-anchor="end">${f === 0 ? '0' : String(top * f).replace('.', ',')}</text>`)
+  const grid = [0, 0.25, 0.5, 0.75, 1]
+    .map((f) => {
+      const y = padT + ih - f * ih;
+      const label = f === 0 ? '0' : f === 0.25 || f === 0.75 ? '' : String(+(top * f).toFixed(2)).replace('.', ',');
+      return `<line x1="${padL}" x2="${W - padR}" y1="${y}" y2="${y}" class="grid${f === 0 ? ' base' : ''}" />
+        ${label ? `<text x="${padL - 6}" y="${y + 4}" class="ax" text-anchor="end">${label}</text>` : ''}`;
+    })
     .join('');
 
   const bars = rows
@@ -57,17 +61,17 @@ function chart(rows, { step, labelEvery, temp = false }) {
 
   const line = temp && temps.length
     ? `<polyline class="temp" points="${rows.map((r, i) => (r.temperature_2m == null ? '' : `${(x(i) + bw / 2).toFixed(1)},${yTemp(r.temperature_2m).toFixed(1)}`)).filter(Boolean).join(' ')}" />
-       <text x="${W - padR + 3}" y="${yTemp(rows.at(-1).temperature_2m) + 3}" class="ax temp">${Math.round(rows.at(-1).temperature_2m)}°</text>`
+       <text x="${W - padR + 4}" y="${yTemp(rows.at(-1).temperature_2m) + 4}" class="ax temp">${Math.round(rows.at(-1).temperature_2m)}°</text>`
     : '';
 
   const labels = rows
-    .map((r, i) => (i % labelEvery === 0 ? `<text x="${x(i) + bw / 2}" y="${H - 4}" class="ax" text-anchor="middle">${hhmm(r.time)}</text>` : ''))
+    .map((r, i) => (i % labelEvery === 0 ? `<text x="${x(i) + bw / 2}" y="${H - 5}" class="ax" text-anchor="middle">${hhmm(r.time)}</text>` : ''))
     .join('');
 
-  const dry = rainMax === 0 ? `<text x="${padL + iw / 2}" y="${padT + ih / 2}" class="dry" text-anchor="middle">ingen nedbør</text>` : '';
+  const dry = rainMax === 0 ? `<text x="${padL + iw / 2}" y="${padT + ih / 2 + 4}" class="dry" text-anchor="middle">ingen nedbør</text>` : '';
 
   return `<svg viewBox="0 0 ${W} ${H}" class="fchart" preserveAspectRatio="none">${grid}${bars}${line}${dry}${labels}
-    <text x="${padL - 4}" y="${padT - 1}" class="ax unit" text-anchor="end">mm</text></svg>`;
+    <text x="${padL - 6}" y="${padT - 2}" class="ax unit" text-anchor="end">mm</text></svg>`;
 }
 
 const num = (v, unit, dec = 0) => (v == null ? '–' : `${v.toFixed(dec).replace('.', ',')} ${unit}`);
@@ -110,7 +114,7 @@ export class ForecastLayer {
   }
 
   async show(lngLat) {
-    const popup = new SmartPopup({ offset: 6, maxWidth: '360px' })
+    const popup = new SmartPopup({ offset: 6, maxWidth: '560px', className: 'forecast-popup' })
       .setLngLat(lngLat)
       .setHTML('<div class="popup forecast"><h3>Vejr</h3><p class="muted">Henter…</p></div>')
       .addTo(this.map);
