@@ -1,88 +1,255 @@
 # DK live
 
-Live map of Denmark and northern Germany — flights, ships and 112 alarms on a dark
-2D map with clickable regions. Runs locally; nothing leaves your machine except
-requests to the public data sources.
+Live kort over Danmark og Nordtyskland med offentlige datakilder samlet ét sted: fly, skibe,
+112-alarmer, trafik, vejarbejde, regnradar, webcams, lufthavne og elpriser.
 
-## Run
+Kører som en lille Node-server på dit eget netværk. Ingen data forlader maskinen ud over kaldene
+til de offentlige API'er, og de fleste lag virker helt uden nøgler.
 
-```
+![Oversigt](docs/oversigt.png)
+
+---
+
+## Indhold
+
+- [Hvad kan det](#hvad-kan-det)
+- [Datalag](#datalag)
+- [Installation](#installation)
+  - [På en pc (hurtigt)](#på-en-pc-hurtigt)
+  - [I Docker / Proxmox](#i-docker--proxmox)
+- [Miljøvariabler](#miljøvariabler)
+- [API-nøgler](#api-nøgler)
+- [Indstillinger](#indstillinger)
+- [Administration](#administration)
+- [Opdatering](#opdatering)
+- [Fejlfinding](#fejlfinding)
+- [Kilder og vilkår](#kilder-og-vilkår)
+
+---
+
+## Hvad kan det
+
+- **Fly** i realtid med flytype, rute, højde og et foto af netop det fly
+- **Skibe** via AIS med status, størrelse, dybgang, destination og ETA
+- **112-alarmer** fra ODIN placeret ved den udrykkende brandstation, med statistik pr. måned
+- **Trafik**: hændelser fra Vejdirektoratet, tysk Autobahn, og farvelagte motorveje efter
+  hastighed (grøn/gul/rød) som på Google Maps
+- **Vejr**: regnradar med afspilning af de sidste 2 timer plus 30 minutters prognose
+- **Lufthavne** med baner, frekvenser, live METAR og hvilke fly der står på jorden eller er på vej
+- **Elpriser** for DK1/DK2 kvarter for kvarter samt produktionsmix og CO₂ lige nu
+- **Webcams** fra tyske motorveje, Windy og din egen liste
+
+![Popup for et fly](docs/fly-popup.png)
+
+## Datalag
+
+| Lag | Kilde | Nøgle | Bemærkning |
+| --- | --- | --- | --- |
+| Fly / Militærfly | adsb.lol | nej | Opdateres hvert 15. sek., bevæges jævnt imellem opslag |
+| Ruter og fotos | adsbdb + Planespotters | nej* | *Planespotters kræver en kontaktadresse i indstillingerne |
+| Skibe | AISStream | gratis | Websocket, holdes åben af serveren |
+| Lufthavne | OurAirports + aviationweather.gov | nej | Data hentes én gang og caches i 30 dage |
+| 112-alarmer | odin.dk/112puls via beredskabsinfo.dk | nej | Position = brandstation, ikke hændelsen |
+| Trafik (DK) | Vejdirektoratet | nej | Kun statsveje |
+| Autobahn (DE) | Autobahn GmbH | nej | 14 motorveje i Slesvig-Holsten og Hamborg |
+| Trafiktæthed | TomTom Traffic Flow | gratis | 2.500 kald/døgn på gratisniveauet |
+| Regnradar | RainViewer | nej | 2 timer bagud, 30 min. prognose |
+| Lyn | DMI lightningdata | gratis | Nedslag den seneste time |
+| Tog | Rejseplanen API 2.0 | gratis | Ikke-kommerciel brug, 50.000 kald/md. |
+| Webcams | Autobahn + Windy + egen liste | gratis* | *Windy kræver nøgle; de tyske er fri |
+| Strøm DK1/DK2 | Energi Data Service | nej | Produktion, CO₂, spotpris |
+
+---
+
+## Installation
+
+Kræver **Node.js 20 eller nyere** (pc) eller **Docker** (server).
+
+### På en pc (hurtigt)
+
+```powershell
+git clone https://github.com/slqdk/dk-live.git
+cd dk-live
 npm install
-cp .env.example .env      # optional: add AISSTREAM_API_KEY for ships
+copy .env.example .env
 npm run dev
 ```
 
-Open http://127.0.0.1:4200
+Åbn <http://127.0.0.1:4200>.
 
-Node 20+ is fine. No build step — `public/` is served as-is.
+### I Docker / Proxmox
 
-## What's in it
+Anbefalet til daglig drift: kører videre efter genstart og kan nås fra telefonen.
 
-| Layer | Source | Key | Notes |
-| --- | --- | --- | --- |
-| Fly / Militærfly | adsb.lol | none | 10 s polls, dead-reckoned between polls. Military = adsb.lol `dbFlags` bit 0 |
-| Skibe | AISStream | free | Websocket held open server-side, snapshot served to the browser |
-| 112-alarmer | odin.dk/112puls | none | Scraped every 90 s. Plotted at the **responding fire station** (OSM), not the incident |
-| Trafik | Vejdirektoratet (trafikkort GeoJSON feed) | none | Incidents, roadblocks, queues on state roads, ~3 min cadence. Webcams no longer exist — Vejdirektoratet removed them |
-| Tog | Rejseplanen API 2.0 `journeypos` | free | Live train positions in the bbox, 1/min. Buses excluded via `products` mask in `server/trains.js` |
-| Autobahn | verkehr.autobahn.de (Autobahn GmbH) | none | Warnings, closures and roadworks on 14 north-German motorways |
-| Webcams | Autobahn GmbH + Windy Webcams API + `data/webcams-dk.json` | Windy: free | German motorway cameras (no key), Danish/other public cameras via Windy (key, attribution required), plus your own list. |
-| Strøm DK1 | Energi Data Service (Energinet) | none | Wind/solar/central production, CO2 intensity, spot price, interconnector flow |
-| Trafiktæthed | TomTom Traffic Flow tiles | free | Green/amber/red road colouring, proxied through the server. 2,500 tiles/day on the free tier |
-| Lufthavne | OurAirports + aviationweather.gov METAR | none | Runways, frequencies, live weather, aircraft on ground / nearby / inbound from the flight layers |
-| Regnradar | RainViewer public API | none | Composite radar, latest frame, max native zoom 7 |
-| Lyn | DMI lightningdata | free | Strikes in the last hour |
-| Basemap | OpenFreeMap dark | none | Vector tiles, MapLibre GL |
+**1. Opret en LXC-container** i Proxmox: Debian 12, 1 kerne, 512 MB RAM, 8 GB disk, statisk IP.
+Under **Options → Features** skal **Nesting** slås til (Docker kræver det) — genstart containeren
+bagefter.
 
-## First-run checklist for 112
+**2. Installér Docker og hent koden:**
 
-1. Open http://127.0.0.1:4200/api/odin/raw and look at `rows`.
-2. If the columns are not `time, beredskab, station, message`, change `COLS` in `server/odin.js`.
-3. Alarms whose station name didn't match an OSM fire station appear greyed in the list
-   and not on the map. Improve `norm()` / add manual overrides in `geocode()` as you see them.
-4. Attribution "Kilde: www.odin.dk/112puls" is required by Beredskabsstyrelsen and is shown
-   in the list and popups. Don't lower `ODIN_POLL` below ~60 s.
-
-## 112 statistics
-
-Every alarm the poller sees is logged once to `server/cache/alarm-log.json` (id, time, region,
-headline, station, beredskab). Open the 112 list → **Statistik** for a month-by-month table:
-regions as columns, headlines as rows. `CSV` downloads the month's raw rows. The headline is the
-message before the first dash; categories in ⚙ → Data → "112-statistik – ignorér" are skipped
-(default: Eftersyn). The log lives in the Docker volume, so it survives rebuilds.
-
-## Adding a layer
-
-Server: a module in `server/` that polls/streams and exposes `getX()`; one route in `server/index.js`.
-Client: a class in `public/layers/` with `init()`, `setVisible(on)`, `count`, `error`; register it in
-`public/app.js` and add a row in `index.html`. Use `subscribe()` from `layers/feed.js` for polling.
-
-Candidates: Vejdirektoratet webcams and incidents, DMI radar, Rejseplanen trains,
-Energinet grid data, CelesTrak satellites (copy the SGP4 module from gods-eye-view).
-
-## Running it on the LAN
-
-`HOST=0.0.0.0` (now the default) exposes it on every interface. Open TCP 4200 in the firewall,
-then http://<server-ip>:4200 from any device on the network. The API-key panel only answers to
-loopback plus the CIDRs in `SETTINGS_ALLOW` — everything else gets the data but can't touch keys.
-
-## Proxmox / Docker
-
-```
-docker compose up -d --build
-```
-
-`compose.yml` builds the image, maps port 4200, keeps keys and the geocode cache in a named
-volume, and restarts on boot. Edit `SETTINGS_ALLOW` to your LAN before the first start.
-
-Fresh Proxmox host without Docker yet: create a Debian 12 LXC (unprivileged is fine, 1 CPU / 512 MB is
-plenty, enable *nesting* under Options → Features), then inside it:
-
-```
+```bash
 apt update && apt install -y ca-certificates curl git
 curl -fsSL https://get.docker.com | sh
-git clone <your repo> /opt/dk-live && cd /opt/dk-live
-docker compose up -d --build
+cd /opt && git clone https://github.com/slqdk/dk-live.git && cd dk-live
 ```
 
-Update later with `git pull && docker compose up -d --build`. Logs: `docker compose logs -f`.
+**3. Tilpas `compose.yml`** — især `SETTINGS_ALLOW`, som er de netværk der må se og ændre
+indstillinger:
+
+```yaml
+      SETTINGS_ALLOW: 30.11.0.0/20,10.0.0.0/20
+```
+
+**4. Start:**
+
+```bash
+chmod +x update.sh
+docker compose up -d --build
+docker compose logs -f
+```
+
+Åbn `http://<container-ip>:4200`.
+
+**5. Automatisk start:** i Proxmox under **Options → Start at boot**. Selve appen har
+`restart: unless-stopped` og kommer op sammen med containeren.
+
+**6. Et pænt navn:** lav en DNS-rewrite i AdGuard Home (eller din router) fra `dklive.lan` til
+containerens IP. På telefonen: åbn siden og vælg *Føj til startskærm*.
+
+---
+
+## Miljøvariabler
+
+Alt kan sættes i `.env` (pc) eller under `environment:` i `compose.yml` (Docker). Ingen af dem er
+påkrævede.
+
+| Variabel | Standard | Betydning |
+| --- | --- | --- |
+| `PORT` | `4200` | Port serveren lytter på |
+| `HOST` | `0.0.0.0` | `127.0.0.1` for kun denne maskine |
+| `SETTINGS_ALLOW` | tom | Netværk (CIDR, kommasepareret) der må se ⚙ og log. Loopback er altid tilladt |
+| `FLIGHTS_POLL` | `15` | Sekunder mellem opslag hos adsb.lol |
+| `ODIN_POLL` | `90` | Sekunder mellem 112-opslag |
+| `TRAFFIC_POLL` | `180` | Vejdirektoratet |
+| `AUTOBAHN_POLL` | `300` | Autobahn GmbH |
+| `TRAINS_POLL` | `60` | Rejseplanen |
+| `ENERGY_POLL` | `120` | Energi Data Service |
+| `AISSTREAM_API_KEY` | tom | Kan også sættes i appen |
+| `TOMTOM_API_KEY` | tom | — |
+| `WINDY_API_KEY` | tom | — |
+| `REJSEPLANEN_API_KEY` | tom | — |
+| `DMI_LIGHTNING_KEY` | tom | — |
+
+Kortets udsnit (Danmark + Nordtyskland) står i `server/bbox.js` og `public/app.js` — ret begge
+steder, hvis du vil dække et andet område.
+
+## API-nøgler
+
+Alle nøgler er gratis og til privat brug. De gemmes på serveren i `server/cache/settings.json`
+(kun læsbar af ejeren) og kommer aldrig ud i browseren.
+
+| Tjeneste | Hvor | Giver |
+| --- | --- | --- |
+| AISStream | <https://aisstream.io> | Skibe |
+| TomTom | <https://developer.tomtom.com> | Trafiktæthed |
+| Windy | <https://api.windy.com/keys> | Webcams i Danmark |
+| Rejseplanen | <https://labs.rejseplanen.dk> | Tog |
+| DMI | <https://dmiapi.govcloud.dk> | Lyn |
+
+Indsæt dem i appen under **⚙ → API-nøgler**. Laget starter med det samme — ingen genstart.
+
+Under **⚙ → Data → Kontakt** skal du skrive en mail eller URL. Planespotters kræver en
+kontaktadresse i User-Agent, ellers vises der ingen flyfotos.
+
+## Indstillinger
+
+![Indstillinger](docs/indstillinger.png)
+
+**⚙** åbner fire faner. Alt gemmes på serveren og gælder **alle enheder** — også hvilke lag der er
+tændt. Knappen findes kun på adresser i `SETTINGS_ALLOW`.
+
+- **Kort** — lysstyrke på land, om kortet må flytte sig for popups, animationer (koster batteri på
+  telefonen), og "gem nuværende udsnit" som startvisning
+- **Lag** — ikonstørrelser, linjebredde på trafiktæthed, radarens gennemsigtighed, tekstlængde,
+  zoomniveau for flynavne
+- **Data** — poll-intervaller, elområde (DK1/DK2), timepriser i stedet for kvarter, hvor mange
+  sider 112-alarmer der hentes, og hvilke alarmkategorier statistikken skal se bort fra
+- **API-nøgler** — som ovenfor
+
+## Administration
+
+**☰** ved siden af ⚙ (også kun fra hjemmenetværket) viser:
+
+- **Serverlog** — alt hvad serveren skriver, live, uden at skulle ind i en terminal
+- **Besøgende** — hver IP der har været forbi: enhed, sidevisninger, antal kald, først og sidst set,
+  grøn prik hvis de er aktive nu
+
+**Beredskabsalarmer** (knappen øverst til højre) viser statistik måned for måned fordelt på
+landsdele, og de seneste alarmer nedenunder. Data gemmes i `server/cache/alarm-log.json` fra den
+dag du starter serveren — tidligere alarmer kan ikke hentes, da kilden kun viser de seneste.
+Knappen **CSV** henter måneden som regneark.
+
+![Beredskabsalarmer](docs/beredskabsalarmer.png)
+
+## Opdatering
+
+**På pc'en:** kør `push.bat`, skriv hvad du har ændret. Den committer og sender til GitHub.
+
+**På serveren:**
+
+```bash
+cd /opt/dk-live && ./update.sh
+```
+
+Henter, bygger og genstarter. Nøgler, indstillinger og alarmlog ligger i Docker-volumet
+`dk-live-cache` og overlever både opdatering og genstart.
+
+Rul tilbage til en tidligere version:
+
+```bash
+git checkout v1.0 && docker compose up -d --build
+```
+
+## Fejlfinding
+
+| Symptom | Årsag / løsning |
+| --- | --- |
+| `./update.sh: Permission denied` | `chmod +x update.sh` |
+| Docker vil ikke starte i containeren | **Nesting** er ikke slået til i Proxmox — slå til, og genstart containeren |
+| Alt viser `failed: ENOTFOUND` | DNS i containeren. Tjek `cat /etc/resolv.conf` |
+| Fly: `HTTP 429` | adsb.lol begrænser. Sæt ⚙ → Data → "Fly – hent hvert" til 20 s |
+| Ingen flyfotos | ⚙ → Data → Kontakt er tom |
+| Ingen skibe | AISStream-nøgle mangler, eller laget er slået fra |
+| Trafiktæthed er grå | TomTom-nøglen mangler, eller kvoten for i dag er brugt. Tjek loggen (☰) |
+| ⚙ mangler | Din adresse er ikke i `SETTINGS_ALLOW` — sådan skal det være udefra |
+| Telefonen bliver varm | Slå **Animationer** fra under ⚙ → Kort |
+| 112-statistikken er tom | Der logges først fra den dag serveren kørte med funktionen |
+| Vil nulstille statistikken | Slet `server/cache/alarm-log.json` og genstart |
+| Vil nulstille alt | `docker compose down -v` og start igen (sletter også nøgler) |
+
+**Status på alle kilder:** `http://<adresse>:4200/api/health`
+**Log:** `docker compose logs -f --tail 100` eller ☰ i appen
+
+## Kilder og vilkår
+
+Data leveres af og tilhører deres respektive udbydere. Vis altid kildeangivelsen der hvor den
+kræves — appen gør det allerede i popups og i kortets hjørne.
+
+- 112-alarmer: **Kilde: www.odin.dk/112puls** (Beredskabsstyrelsen), hentet via beredskabsinfo.dk
+- Trafik: Vejdirektoratet · Autobahn GmbH des Bundes (bund.dev)
+- Trafiktæthed: © TomTom — gratisniveauet er til ikke-kommerciel brug
+- Regnradar: © RainViewer
+- Webcams: Autobahn GmbH · *webcams by Windy* · egne kilder
+- Fly: adsb.lol · adsbdb · fotos fra Planespotters.net med fotografens navn
+- Skibe: AISStream · skibsfotos fra Wikimedia Commons
+- Lufthavne: OurAirports (public domain) · METAR fra aviationweather.gov (NOAA)
+- Strøm: Energi Data Service (Energinet)
+- Kort: OpenFreeMap · © OpenMapTiles · © OpenStreetMap-bidragydere
+- Geokodning: Nominatim / Overpass (OpenStreetMap)
+
+Data er forsinkede og til orientering. Brug dem ikke til navigation, beredskab eller andet
+operationelt.
+
+## Licens
+
+MIT — se [LICENSE](LICENSE).
