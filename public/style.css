@@ -162,9 +162,11 @@ button.link:hover { color: var(--alarm); }
   backdrop-filter: blur(8px); z-index: 2; overflow: hidden;
 }
 #energy[hidden] { display: none; }
-#energy header { display: flex; align-items: center; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+#energy header { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border-bottom: 1px solid var(--line); cursor: pointer; user-select: none; }
+#energy.collapsed header { border-bottom: 0; }
+#energy header:hover { background: rgba(255,255,255,0.04); }
 #energy h2 { margin: 0; font-size: 14px; font-weight: 600; flex: 1; }
-#energy-collapse { color: var(--muted); font-size: 14px; padding: 0 2px; }
+#energy-collapse { color: var(--muted); font-size: 14px; padding: 2px 6px; border-radius: 6px; background: rgba(255,255,255,0.06); pointer-events: none; }
 #energy.collapsed .mix, #energy.collapsed .prices, #energy.collapsed footer { display: none; }
 #energy.collapsed { bottom: auto; }
 #energy.collapsed #energy-collapse { transform: rotate(-90deg); }
@@ -371,7 +373,9 @@ button.link:hover { color: var(--alarm); }
 }
 
 @media (max-width: 640px) {
-  #energy { right: 12px; width: auto; bottom: auto; max-height: 45%; }
+  #energy { right: 12px; width: auto; bottom: auto; top: 112px; max-height: 42%; }
+  #energy.collapsed { width: auto; }
+  #energy header { padding: 11px 12px; }
   #layers-menu { max-height: calc(100% - 120px); }
   #stats { left: 12px; right: 12px; width: auto; top: 120px; max-height: calc(100% - 140px); }
   #stats-top { font-size: 0; padding: 8px 10px; }

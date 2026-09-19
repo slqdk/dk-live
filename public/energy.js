@@ -22,9 +22,12 @@ export function initEnergy() {
   const toggle = document.querySelector('[data-layer="energy"] input');
   toggle.addEventListener('change', (e) => (el.hidden = !e.target.checked));
   el.hidden = !toggle.checked;
+  // The whole header toggles, not just the small chevron — easier to hit on a phone.
   el.addEventListener('click', (e) => {
-    if (e.target.closest('#energy-collapse')) el.classList.toggle('collapsed');
+    if (e.target.closest('header')) el.classList.toggle('collapsed');
   });
+  // Start collapsed on a phone; the map matters more than the price list there.
+  if (window.matchMedia('(max-width: 640px)').matches) el.classList.add('collapsed');
 
   onPrefs((_, patch) => {
     if ('hourlyPrices' in patch && lastData) render(el, lastData);
