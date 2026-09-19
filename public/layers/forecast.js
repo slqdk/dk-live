@@ -24,7 +24,7 @@ const hhmm = (iso) => iso.slice(11, 16);
 const STEPS = [0.5, 1, 2, 5, 10, 20, 50];
 function chart(rows, { step, labelEvery, temp = false }) {
   if (!rows.length) return '<p class="muted">Ingen data.</p>';
-  const W = 520, H = 150, padL = 34, padR = temp ? 34 : 10, padT = 12, padB = 22;
+  const W = 520, H = 150, padL = 40, padR = temp ? 34 : 10, padT = 18, padB = 22;
   const iw = W - padL - padR, ih = H - padT - padB;
   const rainMax = Math.max(...rows.map((r) => r.precipitation ?? 0));
   const top = STEPS.find((v) => v >= rainMax * 1.15) ?? STEPS.at(-1);
@@ -41,7 +41,7 @@ function chart(rows, { step, labelEvery, temp = false }) {
   const grid = [0, 0.25, 0.5, 0.75, 1]
     .map((f) => {
       const y = padT + ih - f * ih;
-      const label = f === 0 ? '0' : f === 0.25 || f === 0.75 ? '' : String(+(top * f).toFixed(2)).replace('.', ',');
+      const label = f === 0.25 || f === 0.75 ? '' : f === 1 ? `${String(+(top).toFixed(2)).replace('.', ',')} mm` : f === 0 ? '0' : String(+(top * f).toFixed(2)).replace('.', ',');
       return `<line x1="${padL}" x2="${W - padR}" y1="${y}" y2="${y}" class="grid${f === 0 ? ' base' : ''}" />
         ${label ? `<text x="${padL - 6}" y="${y + 4}" class="ax" text-anchor="end">${label}</text>` : ''}`;
     })
@@ -71,7 +71,7 @@ function chart(rows, { step, labelEvery, temp = false }) {
   const dry = rainMax === 0 ? `<text x="${padL + iw / 2}" y="${padT + ih / 2 + 4}" class="dry" text-anchor="middle">ingen nedbør</text>` : '';
 
   return `<svg viewBox="0 0 ${W} ${H}" class="fchart" preserveAspectRatio="none">${grid}${bars}${line}${dry}${labels}
-    <text x="${padL - 6}" y="${padT - 2}" class="ax unit" text-anchor="end">mm</text></svg>`;
+</svg>`;
 }
 
 const num = (v, unit, dec = 0) => (v == null ? '–' : `${v.toFixed(dec).replace('.', ',')} ${unit}`);
