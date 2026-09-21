@@ -269,6 +269,41 @@ button.link:hover { color: var(--alarm); }
 /* Webcam image in popups */
 .popup img.cam { display: block; width: 100%; border-radius: 6px; margin-top: 4px; background: rgba(255,255,255,0.05); }
 
+/* Politi panel */
+#police {
+  position: absolute; right: 12px; top: 64px; width: 520px; max-width: calc(100% - 24px);
+  max-height: calc(100% - 90px); display: flex; flex-direction: column;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+  backdrop-filter: blur(8px); z-index: 4;
+}
+#police[hidden] { display: none; }
+#police header { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+#police h2 { margin: 0; font-size: 15px; font-weight: 600; flex: 1; }
+#police-filter { font: inherit; font-size: 13px; color: var(--text); background: rgba(255,255,255,0.06); border: 1px solid var(--line); border-radius: 8px; padding: 5px 8px; }
+#police-close { font-size: 22px; line-height: 1; color: var(--muted); padding: 0 4px; }
+#police-list { list-style: none; margin: 0; padding: 0; overflow-y: auto; }
+#police-list > li { border-bottom: 1px solid var(--line); }
+#police-list .row { display: grid; grid-template-columns: 74px 1fr auto; grid-template-areas: "when kreds n" "title title title"; gap: 1px 8px; width: 100%; text-align: left; padding: 9px 14px; }
+#police-list .row:hover { background: rgba(255,255,255,0.04); }
+#police-list .when { grid-area: when; color: #5aa9ff; font-size: 12px; font-variant-numeric: tabular-nums; }
+#police-list .kreds { grid-area: kreds; color: var(--muted); font-size: 12px; }
+#police-list .n { grid-area: n; font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 0 7px; align-self: center; }
+#police-list .title { grid-area: title; font-size: 13.5px; font-weight: 500; }
+#police-list li.open .row { background: rgba(255,255,255,0.05); }
+#police-list .detail:empty { display: none; }
+#police-list .detail { padding: 2px 14px 12px 14px; }
+#police-list .timeline { list-style: none; margin: 0 0 6px; padding: 0 0 0 12px; border-left: 2px solid rgba(90,169,255,0.35); }
+#police-list .timeline li { margin: 6px 0 10px; }
+#police-list .timeline .t { font-size: 11px; color: var(--muted); }
+#police-list .timeline p { margin: 2px 0 0; font-size: 13px; line-height: 1.45; white-space: pre-line; }
+#police-list .detail .ext { font-size: 12px; color: var(--muted); text-decoration: none; }
+#police-list .detail .ext:hover { color: var(--text); text-decoration: underline; }
+#police .muted, #police .err { padding: 12px 14px; margin: 0; font-size: 13px; }
+#police .muted { color: var(--muted); }
+#police .err { color: var(--alarm); }
+#police footer { padding: 8px 14px; color: var(--muted); font-size: 11px; border-top: 1px solid var(--line); }
+@media (max-width: 640px) { #police { left: 12px; right: 12px; width: auto; top: 120px; } }
+
 /* 112 statistics */
 #stats {
   position: absolute; right: 12px; top: 64px; width: 640px; max-width: calc(100% - 24px);

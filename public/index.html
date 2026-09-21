@@ -15,6 +15,7 @@
   <button id="reset" class="chip">Hele kortet</button>
   <nav id="topbar">
     <button id="weather-open" class="chip" title="Vejrudsigt – vælg et sted på kortet">Vejr</button>
+    <button id="police-open" class="chip" title="Politi Update fra alle politikredse">Politi</button>
     <button id="stats-top" class="chip" title="Beredskabsalarmer – statistik og seneste alarmer">Beredskabsalarmer</button>
     <button id="logs-open" class="chip admin-only" aria-label="Log" title="Serverlog og besøgende">☰</button>
     <button id="settings-open" class="chip admin-only" aria-label="Indstillinger" title="Indstillinger">⚙</button>
@@ -104,6 +105,16 @@
   </div>
 
   <div id="energy" aria-label="Elsystem DK1"></div>
+
+  <section id="police" aria-label="Politi" hidden>
+    <header>
+      <h2>Politi</h2>
+      <select id="police-filter" aria-label="Politikreds"></select>
+      <button id="police-close" aria-label="Luk">×</button>
+    </header>
+    <ol id="police-list"></ol>
+    <footer>Politi Update fra politikredsene via Via Ritzau · de seneste 7 dage</footer>
+  </section>
 
   <section id="stats" aria-label="Beredskabsalarmer" hidden>
     <header>

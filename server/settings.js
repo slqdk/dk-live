@@ -33,6 +33,7 @@ export const PREFS = {
   priceArea: { group: 'data', label: 'Elområde', type: 'select', options: ['DK1', 'DK2'], default: 'DK1', server: true },
   layers: { group: 'hidden', label: 'Synlige lag', type: 'json', default: null },
   hourlyPrices: { group: 'data', label: 'Elpriser pr. time (i stedet for kvarter)', type: 'bool', default: false },
+  policeDistrict: { group: 'data', label: 'Politi – vis som standard', type: 'select', options: ['Alle', 'Syd- og Sønderjylland', 'Sydøstjylland', 'Østjylland', 'Midt- og Vestjylland', 'Nordjylland', 'Fyn', 'Sydsjælland/L-F', 'Midt- og Vestsjælland', 'Nordsjælland', 'Kbh. Vestegn', 'København', 'Bornholm', 'Rigspolitiet', 'NSK'], default: 'Alle' },
   statsDetailed: { group: 'data', label: '112-statistik – vis hele meldingen (ellers kun kategori før bindestregen)', type: 'bool', default: true, server: true },
   statsIgnore: { group: 'data', label: '112-statistik – ignorér kategorier (kommasepareret)', type: 'text', max: 300, default: 'Eftersyn', server: true },
   contact: { group: 'data', label: 'Kontakt til API-udbydere (URL eller e-mail — kræves af Planespotters)', type: 'text', max: 200, default: '', server: true },

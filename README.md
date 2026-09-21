@@ -58,6 +58,7 @@ til de offentlige API'er, og de fleste lag virker helt uden nøgler.
 | Lyn | DMI lightningdata | nej | Nedslag den seneste time. API'et er åbent siden 2026; nøgle er valgfri |
 | Tog | Rejseplanen API 2.0 | gratis | Ikke-kommerciel brug, 50.000 kald/md. |
 | Webcams | Autobahn + Windy + egen liste | gratis* | *Windy kræver nøgle; de tyske er fri |
+| Politi | Politi Update via Via Ritzau (RSS) | nej | Knappen **Politi**: sager fra alle 12 kredse de sidste 7 dage, fold ud for hele forløbet |
 | Strøm DK1/DK2 | Energi Data Service | nej | Produktion, CO₂, spotpris |
 
 ---
@@ -245,6 +246,7 @@ kræves — appen gør det allerede i popups og i kortets hjørne.
 - Fly: adsb.lol · adsbdb · fotos fra Planespotters.net med fotografens navn
 - Skibe: AISStream · skibsfotos fra Wikimedia Commons
 - Lufthavne: OurAirports (public domain) · METAR fra aviationweather.gov (NOAA)
+- Politi: Politi Update fra politikredsene, distribueret af Via Ritzau
 - Strøm: Energi Data Service (Energinet)
 - Kort: OpenFreeMap · © OpenMapTiles · © OpenStreetMap-bidragydere
 - Geokodning: Nominatim / Overpass (OpenStreetMap)

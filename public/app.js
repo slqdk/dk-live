@@ -14,6 +14,7 @@ import { initEnergy } from './energy.js';
 import { initSettings } from './settings.js';
 import { initStats } from './stats.js';
 import { initLogs } from './logs.js';
+import { initPolice } from './police.js';
 import { prefs, loadPrefs, onPrefs } from './prefs.js';
 
 // Keep in sync with server/bbox.js
@@ -109,7 +110,16 @@ map.on('load', async () => {
   initEnergy();
   initSettings(map, BBOX);
   initStats();
+  initPolice();
   if (admin) initLogs();
+  // One right-hand panel at a time
+  const sidePanels = ['police', 'stats', 'settings', 'logs'];
+  for (const id of sidePanels) {
+    new MutationObserver(() => {
+      const el = document.getElementById(id);
+      if (el && !el.hidden) for (const other of sidePanels) if (other !== id) document.getElementById(other)?.setAttribute('hidden', '');
+    }).observe(document.getElementById(id) ?? document.body, { attributes: true, attributeFilter: ['hidden'] });
+  }
   document.getElementById('stats-count').addEventListener('click', (e) => e.preventDefault(), true);
 
   const layersMenu = document.getElementById('layers');

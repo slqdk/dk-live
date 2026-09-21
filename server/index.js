@@ -15,6 +15,7 @@ import { startEnergy, getEnergy, setArea } from './energy.js';
 import { startAirports, getAirports } from './airports.js';
 import { aircraftPhoto, shipPhoto, setContact } from './photos.js';
 import { forecast } from './forecast.js';
+import { startPolice, getPolice, policeDetail } from './police.js';
 import { stats as alarmStats, months as alarmMonths, csv as alarmCsv, setIgnore as setStatsIgnore } from './alarmstats.js';
 import { getKey, setKey, onKeyChange, describeKeys, localOnly, isAdmin, PREFS, getPrefs, setPrefs, onPrefChange } from './settings.js';
 import { getLines, getVisitors, recordVisit, forgetVisitors } from './logbook.js';
@@ -55,6 +56,14 @@ app.get('/api/webcams/windy/:id', async (req, res) => {
 });
 app.get('/api/energy', (_req, res) => res.json(getEnergy()));
 app.get('/api/airports', (_req, res) => res.json(getAirports()));
+app.get('/api/police', (_req, res) => res.set('Cache-Control', 'no-store').json(getPolice()));
+app.get('/api/police/:id', async (req, res) => {
+  try {
+    res.json(await policeDetail(req.params.id));
+  } catch (err) {
+    res.status(502).json({ error: err.message });
+  }
+});
 app.get('/api/forecast', async (req, res) => {
   try {
     res.set('Cache-Control', 'public, max-age=300').json(await forecast(Number(req.query.lat), Number(req.query.lon)));
@@ -116,6 +125,7 @@ app.get('/api/health', (_req, res) =>
     webcams: getAllWebcams().status,
     energy: getEnergy().status,
     airports: getAirports().status,
+    police: getPolice().status,
   })
 );
 
@@ -132,6 +142,7 @@ setKeepHours(getPrefs().alarmKeepHours);
 setPages(getPrefs().alarmPages);
 startEnergy(Number(process.env.ENERGY_POLL ?? 120));
 startAirports();
+startPolice(Number(process.env.POLICE_POLL ?? 300));
 
 onPrefChange('flightsPoll', setFlightsInterval);
 onPrefChange('alarmKeepHours', setKeepHours);
