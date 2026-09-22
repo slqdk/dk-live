@@ -117,7 +117,10 @@ map.on('load', async () => {
   for (const id of sidePanels) {
     new MutationObserver(() => {
       const el = document.getElementById(id);
-      if (el && !el.hidden) for (const other of sidePanels) if (other !== id) document.getElementById(other)?.setAttribute('hidden', '');
+      if (el && !el.hidden) {
+        for (const other of sidePanels) if (other !== id) document.getElementById(other)?.setAttribute('hidden', '');
+        document.getElementById('energy')?.classList.remove('mobile-open');
+      }
     }).observe(document.getElementById(id) ?? document.body, { attributes: true, attributeFilter: ['hidden'] });
   }
   document.getElementById('stats-count').addEventListener('click', (e) => e.preventDefault(), true);
@@ -135,7 +138,6 @@ map.on('load', async () => {
       layersToggle.setAttribute('aria-expanded', 'false');
     }
   });
-  document.getElementById('reset').addEventListener('click', () => map.fitBounds(homeBounds(), { padding: 20, duration: 900 }));
 });
 
 // Alarm list ----------------------------------------------------------

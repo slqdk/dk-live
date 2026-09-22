@@ -20,14 +20,25 @@ const dayName = (t) => {
 export function initEnergy() {
   const el = document.getElementById('energy');
   const toggle = document.querySelector('[data-layer="energy"] input');
-  toggle.addEventListener('change', (e) => (el.hidden = !e.target.checked));
-  el.hidden = !toggle.checked;
-  // The whole header toggles, not just the small chevron — easier to hit on a phone.
-  el.addEventListener('click', (e) => {
-    if (e.target.closest('header')) el.classList.toggle('collapsed');
+  const openBtn = document.getElementById('energy-open');
+  const mobile = () => window.matchMedia('(max-width: 640px)').matches;
+  const sync = () => {
+    el.hidden = !toggle.checked;
+    openBtn.hidden = !toggle.checked;
+  };
+  toggle.addEventListener('change', sync);
+  sync();
+  // Phone: the panel is behind the "⚡ El" button and opens as an overlay
+  openBtn.addEventListener('click', () => {
+    el.classList.toggle('mobile-open');
+    el.classList.remove('collapsed');
   });
-  // Start collapsed on a phone; the map matters more than the price list there.
-  if (window.matchMedia('(max-width: 640px)').matches) el.classList.add('collapsed');
+  // Header: collapses on desktop, closes the overlay on a phone
+  el.addEventListener('click', (e) => {
+    if (!e.target.closest('header')) return;
+    if (mobile()) el.classList.remove('mobile-open');
+    else el.classList.toggle('collapsed');
+  });
 
   onPrefs((_, patch) => {
     if ('hourlyPrices' in patch && lastData) render(el, lastData);
@@ -59,7 +70,7 @@ function render(el, data, error) {
   el.innerHTML = `
     <header>
       <h2>Strøm ${data.area ?? 'DK1'}</h2>
-      <button id="energy-collapse" aria-label="Fold sammen">▾</button>
+      <button id="energy-collapse" aria-label="Fold sammen"><span class="chev">▾</span></button>
     </header>
     <dl class="mix">
       <dt>Vind</dt><dd>${mw(n.wind)}</dd>

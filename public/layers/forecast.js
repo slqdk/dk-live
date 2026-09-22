@@ -24,7 +24,7 @@ const hhmm = (iso) => iso.slice(11, 16);
 const STEPS = [0.5, 1, 2, 5, 10, 20, 50];
 function chart(rows, { step, labelEvery, temp = false }) {
   if (!rows.length) return '<p class="muted">Ingen data.</p>';
-  const W = 520, H = 150, padL = 40, padR = temp ? 34 : 10, padT = 18, padB = 22;
+  const W = 520, H = 120, padL = 44, padR = temp ? 30 : 8, padT = 12, padB = 20;
   const iw = W - padL - padR, ih = H - padT - padB;
   const rainMax = Math.max(...rows.map((r) => r.precipitation ?? 0));
   const top = STEPS.find((v) => v >= rainMax * 1.15) ?? STEPS.at(-1);
@@ -148,23 +148,23 @@ export class ForecastLayer {
     const hours = d.hourly.filter((h) => Date.parse(h.time) >= Date.now() - 1800_000).slice(0, 24);
     const coords = `${Math.abs(d.lat).toFixed(3)}° ${d.lat >= 0 ? 'N' : 'S'}, ${Math.abs(d.lon).toFixed(3)}° ${d.lon >= 0 ? 'Ø' : 'V'}`;
 
+    const gust = c.wind_gusts_10m ? ` (${num(c.wind_gusts_10m, '', 0).trim()})` : '';
     return `<div class="popup forecast">
       <h3>${icon} ${esc(d.place ?? 'Vejr her')}</h3>
-      <p class="where">${esc(txt)} · <span class="muted">${coords}</span></p>
       <div class="now">
-        <div class="temp">${num(c.temperature_2m, '°C', 1)}</div>
-        <dl>
-          <dt>Føles som</dt><dd>${num(c.apparent_temperature, '°C', 1)}</dd>
-          <dt>Vind</dt><dd>${num(c.wind_speed_10m, 'm/s', 1)} ${dir(c.wind_direction_10m)}${c.wind_gusts_10m ? ` · stød ${num(c.wind_gusts_10m, 'm/s', 1)}` : ''}</dd>
-          <dt>Skyer</dt><dd>${num(c.cloud_cover, '%')}</dd>
-          <dt>Tryk</dt><dd>${num(c.pressure_msl, 'hPa')}</dd>
-        </dl>
+        <span class="temp">${c.temperature_2m != null ? `${c.temperature_2m.toFixed(1).replace('.', ',')}°` : '–'}</span>
+        <span class="desc">${esc(txt)}<br><span class="muted">føles ${num(c.apparent_temperature, '°', 0).replace(' °', '°')}</span></span>
+        <span class="stat" title="Vind (stød) og retning">💨 ${c.wind_speed_10m != null ? c.wind_speed_10m.toFixed(0) : '–'}${gust} m/s ${dir(c.wind_direction_10m)}</span>
+        <span class="stat" title="Skydække">☁ ${num(c.cloud_cover, '%')}</span>
+        <span class="stat" title="Lufttryk">${num(c.pressure_msl, 'hPa')}</span>
       </div>
-      <p class="lead">${esc(nextRain)}</p>
-      <div class="tabs">
-        <button type="button" data-tab="min" class="active">6 timer</button>
-        <button type="button" data-tab="hour">24 timer</button>
-        <button type="button" data-tab="days">3 dage</button>
+      <div class="bar">
+        <span class="lead">${esc(nextRain)}</span>
+        <div class="tabs">
+          <button type="button" data-tab="min" class="active">6 t</button>
+          <button type="button" data-tab="hour">24 t</button>
+          <button type="button" data-tab="days">3 d</button>
+        </div>
       </div>
       <div data-pane="min">${chart(rain, { step: 15, labelEvery: 4 })}</div>
       <div data-pane="hour" hidden>${chart(hours, { step: 60, labelEvery: 3, temp: true })}</div>
@@ -177,7 +177,7 @@ export class ForecastLayer {
           })
           .join('')}</table>
       </div>
-      <div class="links"><button type="button" class="pick">Vælg et andet sted ↗</button> <span class="muted">Open-Meteo${d.elevation != null ? ` · ${Math.round(d.elevation)} m o.h.` : ''}</span></div>
+      <div class="foot"><button type="button" class="pick">Vælg andet sted</button><span class="muted">${coords} · Open-Meteo</span></div>
     </div>`;
   }
 
