@@ -20,7 +20,7 @@
   --wind: #8fb8de;
   --sealevel: #4fc3f7;
   --navwarn: #ff9f43;
-  --grid: #ff4fd8;
+  --grid: #d4a017;
   font-family: 'IBM Plex Sans', system-ui, sans-serif;
   color: var(--text);
 }
@@ -161,12 +161,16 @@ button.link:hover { color: var(--alarm); }
 
 /* Power panel — left side */
 #energy {
-  position: absolute; left: 12px; top: 64px; width: 250px;
+  position: absolute; left: 12px; top: max(12px, env(safe-area-inset-top)); width: 250px;
   bottom: max(12px, env(safe-area-inset-bottom)); display: flex; flex-direction: column;
   background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
   backdrop-filter: blur(8px); z-index: 2; overflow: hidden;
 }
 #energy[hidden] { display: none; }
+/* Desktop: power panel owns the top-left corner, Datalag sits (and opens) to its right */
+@media (min-width: 641px) {
+  body:has(#energy:not([hidden])) #layers-menu { left: calc(12px + 250px + 10px); }
+}
 #energy header { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border-bottom: 1px solid var(--line); cursor: pointer; user-select: none; }
 #energy.collapsed header { border-bottom: 0; }
 #energy header:hover { background: rgba(255,255,255,0.04); }

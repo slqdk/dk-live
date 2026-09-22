@@ -1,6 +1,6 @@
 // Interconnectors: live MW on each cable from Energi Data Service (PowerSystemRightNow).
 // Energinet sign convention: positive = import into Denmark (for DK1_DK2: flow DK2 → DK1).
-// Colour: pink = import, violet = export; the arrow shows the direction.
+// Colour: dark yellow = import, darker/duller yellow = export; the arrow shows the direction.
 import { subscribe } from './feed.js';
 import { esc, SmartPopup } from '../app.js';
 
@@ -53,8 +53,8 @@ export class InterconnectLayer {
 
     map.addSource('ic-lines', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
     map.addSource('ic-mid', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
-    // magenta: nothing else on the map uses it (roads/ships are green, alarms red/orange)
-    const color = ['case', ['get', 'import'], '#ff4fd8', '#c77dff'];
+    // dark yellow — darker than the aircraft yellow, not a road colour
+    const color = ['case', ['get', 'import'], '#d4a017', '#a88414'];
     map.addLayer({
       id: 'ic-line',
       type: 'line',
