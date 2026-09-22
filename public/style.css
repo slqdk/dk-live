@@ -17,6 +17,9 @@
   --flow: #4ade80;
   --energy: #6fe3a0;
   --region: #6fa8dc;
+  --wind: #8fb8de;
+  --sealevel: #4fc3f7;
+  --navwarn: #ff9f43;
   font-family: 'IBM Plex Sans', system-ui, sans-serif;
   color: var(--text);
 }
@@ -435,3 +438,6 @@ button.link:hover { color: var(--alarm); }
 }
 
 [data-layer="alarms"] .count { cursor: pointer; text-decoration: underline dotted; }
+
+/* Navigational warning text in popup — clamp instead of scrolling */
+.popup .navwarn-details { font-size: 12px; line-height: 1.35; margin: 6px 0 0; white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }

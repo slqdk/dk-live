@@ -50,6 +50,8 @@ async function pollNow() {
     exchangeSE: pick(r, 'Exchange_DK1_SE'),
     exchangeNL: pick(r, 'Exchange_DK1_NL'),
     exchangeGB: pick(r, 'Exchange_DK1_GB'),
+    // every interconnector in the snapshot, e.g. { Exchange_DK2_DE: -410, ... } (MW)
+    exchanges: Object.fromEntries(Object.entries(r).filter(([k, v]) => /^Exchange_/i.test(k) && !/sum/i.test(k) && typeof v === 'number')),
   };
 }
 

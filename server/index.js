@@ -21,6 +21,8 @@ import { getKey, setKey, onKeyChange, describeKeys, localOnly, isAdmin, PREFS, g
 import { getLines, getVisitors, recordVisit, forgetVisitors } from './logbook.js';
 import { log as logLine } from './bbox.js';
 import { setFlowKey, flowEnabled, flowTile } from './flow.js';
+import { startDmiObs, getWind, getSeaLevel } from './dmiobs.js';
+import { startNiord, getNiord } from './niord.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT ?? 4200);
@@ -54,6 +56,9 @@ app.get('/api/webcams/windy/:id', async (req, res) => {
     res.status(502).json({ error: err.message });
   }
 });
+app.get('/api/wind', (_req, res) => res.json(getWind()));
+app.get('/api/sealevel', (_req, res) => res.json(getSeaLevel()));
+app.get('/api/navwarnings', (_req, res) => res.json(getNiord()));
 app.get('/api/energy', (_req, res) => res.json(getEnergy()));
 app.get('/api/airports', (_req, res) => res.json(getAirports()));
 app.get('/api/police', (_req, res) => res.set('Cache-Control', 'no-store').json(getPolice()));
@@ -126,6 +131,9 @@ app.get('/api/health', (_req, res) =>
     energy: getEnergy().status,
     airports: getAirports().status,
     police: getPolice().status,
+    wind: getWind().status,
+    sealevel: getSeaLevel().status,
+    navwarnings: getNiord().status,
   })
 );
 
@@ -143,6 +151,8 @@ setPages(getPrefs().alarmPages);
 startEnergy(Number(process.env.ENERGY_POLL ?? 120));
 startAirports();
 startPolice(Number(process.env.POLICE_POLL ?? 300));
+startDmiObs();
+startNiord(Number(process.env.NIORD_POLL ?? 900));
 
 onPrefChange('flightsPoll', setFlightsInterval);
 onPrefChange('alarmKeepHours', setKeepHours);

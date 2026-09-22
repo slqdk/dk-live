@@ -10,6 +10,10 @@ import { WebcamsLayer } from './layers/webcams.js';
 import { FlowLayer } from './layers/flow.js';
 import { AirportsLayer } from './layers/airports.js';
 import { ForecastLayer } from './layers/forecast.js';
+import { WindLayer } from './layers/wind.js';
+import { SeaLevelLayer } from './layers/sealevel.js';
+import { InterconnectLayer } from './layers/interconnect.js';
+import { NavWarningsLayer } from './layers/navwarnings.js';
 import { initEnergy } from './energy.js';
 import { initSettings } from './settings.js';
 import { initStats } from './stats.js';
@@ -56,11 +60,15 @@ map.on('load', async () => {
     forecast: new ForecastLayer(map),
     flow: new FlowLayer(map),
     lightning: new LightningLayer(map),
+    navwarnings: new NavWarningsLayer(map),
+    interconnect: new InterconnectLayer(map),
     traffic: new TrafficLayer(map),
     autobahn: new AutobahnLayer(map),
     webcams: new WebcamsLayer(map),
     trains: new TrainsLayer(map),
     ships: new ShipsLayer(map),
+    sealevel: new SeaLevelLayer(map),
+    wind: new WindLayer(map),
     alarms: new AlarmsLayer(map),
     // reads the aircraft lists lazily (at popup time), so the reference is fine before they exist
     airports: new AirportsLayer(map, () => [...layers.flights.aircraft, ...layers.military.aircraft]),

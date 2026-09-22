@@ -158,6 +158,10 @@ Alle nøgler er gratis og til privat brug. De gemmes på serveren i `server/cach
 | Rejseplanen | <https://labs.rejseplanen.dk> | Tog |
 | DMI | <https://www.dmi.dk/friedata/dokumentation/lightning-data-api> | Lyn (valgfri – API'et er åbent) |
 
+Uden nøgle: DMI metObs (vind) og oceanObs (vandstand), Energi Data Service (elforbindelser) og
+Nautisk Information / Niord (navigationsadvarsler og skydeøvelser, `NIORD_BASE` i `.env` hvis
+værten flytter).
+
 Indsæt dem i appen under **⚙ → API-nøgler**. Laget starter med det samme — ingen genstart.
 
 Under **⚙ → Data → Kontakt** skal du skrive en mail eller URL. Planespotters kræver en
