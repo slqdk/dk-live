@@ -20,6 +20,7 @@
   --wind: #8fb8de;
   --sealevel: #4fc3f7;
   --navwarn: #ff9f43;
+  --grid: #ff4fd8;
   font-family: 'IBM Plex Sans', system-ui, sans-serif;
   color: var(--text);
 }

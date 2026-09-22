@@ -140,7 +140,6 @@ påkrævede.
 | `TOMTOM_API_KEY` | tom | — |
 | `WINDY_API_KEY` | tom | — |
 | `REJSEPLANEN_API_KEY` | tom | — |
-| `DMI_LIGHTNING_KEY` | tom | — |
 
 Kortets udsnit (Danmark + Nordtyskland) står i `server/bbox.js` og `public/app.js` — ret begge
 steder, hvis du vil dække et andet område.
@@ -156,9 +155,8 @@ Alle nøgler er gratis og til privat brug. De gemmes på serveren i `server/cach
 | TomTom | <https://developer.tomtom.com> | Trafiktæthed |
 | Windy | <https://api.windy.com/keys> | Webcams i Danmark |
 | Rejseplanen | <https://labs.rejseplanen.dk> | Tog |
-| DMI | <https://www.dmi.dk/friedata/dokumentation/lightning-data-api> | Lyn (valgfri – API'et er åbent) |
 
-Uden nøgle: DMI metObs (vind) og oceanObs (vandstand), Energi Data Service (elforbindelser) og
+Uden nøgle: DMI lyn, metObs (vind) og oceanObs (vandstand), Energi Data Service (elforbindelser) og
 Nautisk Information / Niord (navigationsadvarsler og skydeøvelser, `NIORD_BASE` i `.env` hvis
 værten flytter).
 
