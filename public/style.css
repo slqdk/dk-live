@@ -378,9 +378,14 @@ button.link:hover { color: var(--alarm); }
 #radar-label.future b { color: var(--traffic); }
 #radar-ctl .muted { color: var(--muted); font-size: 11px; }
 @media (max-width: 640px) {
-  #radar-ctl { left: 12px; right: 12px; transform: none; bottom: 60px; gap: 6px; }
+  #radar-ctl { left: 12px; right: 12px; transform: none; bottom: max(12px, env(safe-area-inset-bottom)); gap: 6px; }
   #radar-slider { flex: 1; width: auto; }
   #radar-ctl .muted { display: none; }
+  /* folded: just ▶ + time, bottom-left, out of the way of the map */
+  #radar-ctl.compact { right: auto; padding: 4px 10px 4px 4px; opacity: 0.85; }
+  #radar-ctl.compact #radar-slider { display: none; }
+  #radar-ctl.compact #radar-play { width: 28px; height: 28px; }
+  #radar-label { cursor: pointer; }
 }
 
 /* Status — bottom right */
@@ -432,6 +437,12 @@ button.link:hover { color: var(--alarm); }
   #energy-collapse .chev { display: none; }
   #energy header { padding: 11px 12px; }
   #layers-menu { max-height: calc(100% - 120px); }
+  /* ⚡ El button (and other phone-only chips) */
+  .mobile-only { display: inline-block; }
+  .mobile-only[hidden] { display: none; }
+  /* tighter chips so ⚡ El · Vejr · Politi · 112 fit in one row next to Datalag */
+  #topbar { gap: 4px; max-width: calc(100% - 130px); }
+  #topbar .chip { padding: 7px 10px; font-size: 14px; }
   #stats { left: 12px; right: 12px; width: auto; top: 120px; max-height: calc(100% - 140px); }
   #stats-top { font-size: 0; padding: 8px 10px; }
   #stats-top::after { content: '112'; font-size: 14px; font-weight: 600; color: var(--alarm); }

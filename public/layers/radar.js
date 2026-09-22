@@ -114,8 +114,22 @@ export class RadarLayer {
     this.slider = this.ctl.querySelector('#radar-slider');
     this.label = this.ctl.querySelector('#radar-label');
     this.delay = this.ctl.querySelector('#radar-delay');
-    this.playBtn.addEventListener('click', () => this.play());
+    // Phone: the player is a small pill (▶ + time) and only grows a slider while in use;
+    // it folds back 6 s after the last touch / end of playback (CSS: #radar-ctl.compact).
+    this.ctl.classList.add('compact');
+    const expand = () => {
+      this.ctl.classList.remove('compact');
+      clearTimeout(this.idle);
+      const fold = () => (this.timer ? (this.idle = setTimeout(fold, 6000)) : this.ctl.classList.add('compact'));
+      this.idle = setTimeout(fold, 6000);
+    };
+    this.label.addEventListener('click', () => (this.ctl.classList.contains('compact') ? expand() : this.ctl.classList.add('compact')));
+    this.playBtn.addEventListener('click', () => {
+      expand();
+      this.play();
+    });
     this.slider.addEventListener('input', () => {
+      expand();
       if (this.timer) { clearInterval(this.timer); this.timer = null; this.playBtn.disabled = false; }
       this.show(Number(this.slider.value));
     });
