@@ -7,15 +7,16 @@ const POLL_MS = 120_000;
 // key (normalised field name) → cable: [Danish end, far end] — far end is where the cable
 // leaves the map or lands abroad, so the line reads as "this way out".
 const CABLES = {
-  dk1de: { name: 'Jylland ↔ Tyskland', a: [9.29, 55.03], b: [9.55, 54.45], abroad: 'Tyskland' },
-  dk1nl: { name: 'COBRAcable ↔ Holland', a: [8.7, 55.52], b: [7.7, 54.75], abroad: 'Holland' },
-  dk1gb: { name: 'Viking Link ↔ Storbritannien', a: [9.05, 55.52], b: [7.6, 55.8], abroad: 'Storbritannien' },
-  dk1no: { name: 'Skagerrak ↔ Norge', a: [9.6, 56.47], b: [8.45, 57.8], abroad: 'Norge' },
-  dk1se: { name: 'Konti-Skan ↔ Sverige', a: [10.1, 57.07], b: [11.5, 57.45], abroad: 'Sverige' },
-  dk1dk2: { name: 'Storebælt (DK1 ↔ DK2)', a: [10.48, 55.36], b: [11.3, 55.52], abroad: 'DK2' },
-  greatbelt: { name: 'Storebælt (DK1 ↔ DK2)', a: [10.48, 55.36], b: [11.3, 55.52], abroad: 'DK2' },
-  dk2de: { name: 'Kontek / Kriegers Flak ↔ Tyskland', a: [12.06, 55.45], b: [12.2, 54.3], abroad: 'Tyskland' },
-  dk2se: { name: 'Øresund ↔ Sverige', a: [12.5, 55.85], b: [12.95, 55.95], abroad: 'Sverige' },
+  // [coast/border point, point out at sea / abroad] — offshore stubs only, never across land
+  dk1de: { name: 'Jylland ↔ Tyskland', a: [9.3, 54.86], b: [9.42, 54.62], abroad: 'Tyskland' },
+  dk1nl: { name: 'COBRAcable ↔ Holland', a: [8.08, 55.45], b: [7.6, 54.95], abroad: 'Holland' },
+  dk1gb: { name: 'Viking Link ↔ Storbritannien', a: [8.06, 55.62], b: [7.55, 55.85], abroad: 'Storbritannien' },
+  dk1no: { name: 'Skagerrak ↔ Norge', a: [8.6, 57.14], b: [8.25, 57.75], abroad: 'Norge' },
+  dk1se: { name: 'Konti-Skan ↔ Sverige', a: [10.56, 57.34], b: [11.45, 57.5], abroad: 'Sverige' },
+  dk1dk2: { name: 'Storebælt (DK1 ↔ DK2)', a: [10.8, 55.29], b: [11.12, 55.33], abroad: 'DK2' },
+  greatbelt: { name: 'Storebælt (DK1 ↔ DK2)', a: [10.8, 55.29], b: [11.12, 55.33], abroad: 'DK2' },
+  dk2de: { name: 'Kontek / Kriegers Flak ↔ Tyskland', a: [11.95, 54.56], b: [12.12, 54.28], abroad: 'Tyskland' },
+  dk2se: { name: 'Øresund ↔ Sverige', a: [12.6, 56.02], b: [12.76, 56.06], abroad: 'Sverige' },
 };
 const norm = (k) => k.replace(/^Exchange_/i, '').replace(/[^a-z0-9]/gi, '').toLowerCase();
 const bearing = ([lon1, lat1], [lon2, lat2]) => {
