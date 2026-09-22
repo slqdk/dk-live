@@ -156,7 +156,7 @@ Alle nøgler er gratis og til privat brug. De gemmes på serveren i `server/cach
 | TomTom | <https://developer.tomtom.com> | Trafiktæthed |
 | Windy | <https://api.windy.com/keys> | Webcams i Danmark |
 | Rejseplanen | <https://labs.rejseplanen.dk> | Tog |
-| DMI | <https://opendatadocs.dmi.govcloud.dk> | Lyn (valgfri – API'et er åbent) |
+| DMI | <https://www.dmi.dk/friedata/dokumentation/lightning-data-api> | Lyn (valgfri – API'et er åbent) |
 
 Indsæt dem i appen under **⚙ → API-nøgler**. Laget starter med det samme — ingen genstart.
 

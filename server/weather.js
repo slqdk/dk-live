@@ -1,5 +1,5 @@
 // Rain radar from RainViewer (public, keyless: past 2 h, 10 min frames, max zoom 7).
-// Lightning from DMI (optional, free key from https://dmiapi.govcloud.dk).
+// Lightning from DMI (open API, no key needed: https://www.dmi.dk/friedata/dokumentation/lightning-data-api).
 import { BBOX, log } from './bbox.js';
 
 const RV_URL = 'https://api.rainviewer.com/public/weather-maps.json';

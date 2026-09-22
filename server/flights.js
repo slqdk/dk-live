@@ -1,6 +1,7 @@
 // Live aircraft from adsb.lol (community ADS-B, no key, no credits).
 // Polls one 250 nm circle around the map centre and keeps only what is inside BBOX.
 // Routes (origin → destination) come from adsb.lol's routeset endpoint and are cached per callsign.
+import https from 'node:https';
 import { BBOX, CENTER, inBbox, log } from './bbox.js';
 
 const URL = `https://api.adsb.lol/v2/lat/${CENTER.lat.toFixed(3)}/lon/${CENTER.lon.toFixed(3)}/dist/250`;
@@ -8,7 +9,33 @@ const HEADERS = { 'User-Agent': 'dk-live/0.1 (personal dashboard)' };
 const SKIP_TYPES = new Set(['TWR', 'GND']); // ground stations / vehicles reported as "aircraft"
 
 let cache = { updated: 0, aircraft: [] };
+
+// adsb.lol throttles kept-alive connections far harder than fresh ones (Node's fetch pools
+// and reuses them), so each poll opens its own TLS connection: agent:false = no pooling.
+function getFresh(url) {
+  return new Promise((resolve, reject) => {
+    const req = https.get(url, { agent: false, headers: { ...HEADERS, Accept: 'application/json' }, timeout: 20_000 }, (res) => {
+      const chunks = [];
+      res.on('data', (c) => chunks.push(c));
+      res.on('end', () => resolve({ status: res.statusCode, headers: res.headers, body: Buffer.concat(chunks).toString('utf8') }));
+      res.on('error', reject);
+    });
+    req.on('timeout', () => req.destroy(new Error('timeout')));
+    req.on('error', reject);
+  });
+}
+
+// Backoff: 30 s, doubling to 5 min (or Retry-After if longer); reset on success.
+// Logged once per episode + once on recovery, not on every failed poll.
 let backoffUntil = 0;
+let backoffMs = 0;
+let failures = 0;
+function fail(reason, retryAfterSec) {
+  backoffMs = Math.min(backoffMs ? backoffMs * 2 : 30_000, 300_000);
+  const wait = Math.max(backoffMs, (retryAfterSec || 0) * 1000);
+  backoffUntil = Date.now() + wait;
+  if (failures++ === 0) log('flights', `poll failed: ${reason}, backing off (${Math.round(wait / 1000)} s, doubling)`);
+}
 
 // Routes: adsbdb.com, one GET per callsign, max one per second, cached for the process lifetime.
 const routes = new Map(); // callsign -> { from, to, fromName, toName } | null (looked up, unknown)
@@ -50,13 +77,12 @@ function queueRoutes(list) {
 async function poll() {
   if (Date.now() < backoffUntil) return;
   try {
-    const res = await fetch(URL, { headers: HEADERS });
-    if (res.status === 429) {
-      backoffUntil = Date.now() + 30_000;
-      throw new Error('HTTP 429, pausing 30 s');
-    }
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
+    const res = await getFresh(URL);
+    if (res.status !== 200) return fail(`HTTP ${res.status}`, Number(res.headers['retry-after']));
+    const json = JSON.parse(res.body);
+    if (failures) log('flights', `recovered after ${failures} failed poll(s)`);
+    failures = 0;
+    backoffMs = 0;
     const now = Date.now();
     const aircraft = (json.ac ?? [])
       .filter((a) => typeof a.lat === 'number' && typeof a.lon === 'number' && inBbox(a.lat, a.lon))
@@ -85,7 +111,7 @@ async function poll() {
     for (const a of aircraft) a.route = a.callsign ? routes.get(a.callsign) ?? null : null;
     cache = { updated: now, aircraft };
   } catch (err) {
-    log('flights', 'poll failed:', err.cause?.code ?? err.message);
+    fail(err.cause?.code ?? err.code ?? err.message);
   }
 }
 
