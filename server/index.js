@@ -120,7 +120,7 @@ app.post('/api/settings', localOnly, (req, res) => {
 app.get('/api/health', (_req, res) =>
   res.json({
     flights: getFlights().aircraft.length,
-    ships: getShips().enabled ? getShips().ships.length : 'disabled',
+    ships: getShips().enabled ? `${getShips().status}, ${getShips().ships.length} skibe` : 'disabled',
     odin: getOdin().status,
     traffic: getTraffic().status,
     radar: getRadar().status,

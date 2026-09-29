@@ -134,7 +134,7 @@ export class ShipsLayer {
           return;
         }
         this.count = data.ships.length;
-        this.error = null;
+        this.error = data.status?.startsWith('failed') ? `skibe: ${data.status.slice(8)}` : null;
         map.getSource('ships').setData({
           type: 'FeatureCollection',
           features: data.ships.map((s) => ({

@@ -4,15 +4,44 @@ import WebSocket from 'ws';
 import { BBOX, log } from './bbox.js';
 
 const STALE_MS = 15 * 60 * 1000;
+// AISStream sometimes stops sending without closing the socket (half-open), and it reports
+// a bad key / overload as a JSON {error} message followed by a close. Both used to leave the
+// layer silently empty; now a watchdog kills a socket that has been quiet for 90 s and
+// reconnects with backoff (10 s → 5 min), and every server-side error is logged.
+const SILENCE_MS = 90_000;
 const ships = new Map(); // mmsi -> record
 let ws = null;
 let enabled = false;
+let lastMsg = 0;
+let retryMs = 10_000;
+let lastError = null;
+let watchdog = null;
+
+function scheduleReconnect(apiKey, why) {
+  if (apiKey !== currentKey) return;
+  log('ships', `${why}, reconnecting in ${Math.round(retryMs / 1000)} s`);
+  setTimeout(() => apiKey === currentKey && connect(apiKey), retryMs);
+  retryMs = Math.min(retryMs * 2, 300_000);
+}
 
 function connect(apiKey) {
-  ws = new WebSocket('wss://stream.aisstream.io/v0/stream');
+  const sock = new WebSocket('wss://stream.aisstream.io/v0/stream');
+  ws = sock;
+  lastMsg = Date.now(); // give the handshake the same 90 s grace
+
+  clearInterval(watchdog);
+  watchdog = setInterval(() => {
+    if (ws !== sock) return clearInterval(watchdog);
+    if (Date.now() - lastMsg > SILENCE_MS) {
+      lastError = `ingen data i ${Math.round((Date.now() - lastMsg) / 1000)} s`;
+      log('ships', `no messages for ${Math.round((Date.now() - lastMsg) / 1000)} s, dropping socket`);
+      clearInterval(watchdog);
+      sock.terminate(); // fires 'close' → scheduleReconnect
+    } else if (sock.readyState === WebSocket.OPEN) sock.ping();
+  }, 30_000);
 
   ws.on('open', () => {
-    ws.send(
+    sock.send(
       JSON.stringify({
         APIKey: apiKey,
         BoundingBoxes: [[[BBOX.south, BBOX.west], [BBOX.north, BBOX.east]]],
@@ -28,6 +57,16 @@ function connect(apiKey) {
       msg = JSON.parse(buf.toString());
     } catch {
       return;
+    }
+    if (msg.error) {
+      lastError = String(msg.error);
+      return log('ships', 'AISStream error:', lastError);
+    }
+    lastMsg = Date.now();
+    if (lastError || retryMs > 10_000) {
+      if (lastError) log('ships', 'data flowing again');
+      lastError = null;
+      retryMs = 10_000;
     }
     const meta = msg.MetaData ?? {};
     const mmsi = meta.MMSI;
@@ -64,12 +103,16 @@ function connect(apiKey) {
     ships.set(mmsi, rec);
   });
 
-  ws.on('close', () => {
-    if (apiKey !== currentKey) return;
-    log('ships', 'socket closed, reconnecting in 10 s');
-    setTimeout(() => apiKey === currentKey && connect(apiKey), 10_000);
+  ws.on('close', (code, reason) => {
+    if (ws !== sock) return;
+    clearInterval(watchdog);
+    const r = reason?.toString().trim();
+    scheduleReconnect(apiKey, `socket closed (${code}${r ? ` ${r}` : ''})`);
   });
-  ws.on('error', (err) => log('ships', 'socket error:', err.message));
+  ws.on('error', (err) => {
+    lastError = err.message;
+    log('ships', 'socket error:', err.message);
+  });
 }
 
 let currentKey = null;
@@ -85,10 +128,13 @@ export function startShips(apiKey) {
 export function setShipsKey(apiKey) {
   currentKey = apiKey;
   if (ws) {
-    ws.removeAllListeners('close');
-    ws.close();
-    ws = null;
+    const old = ws;
+    ws = null; // its close handler sees ws !== sock and stays quiet
+    old.terminate();
   }
+  clearInterval(watchdog);
+  retryMs = 10_000;
+  lastError = null;
   ships.clear();
   if (!apiKey) {
     enabled = false;
@@ -99,8 +145,11 @@ export function setShipsKey(apiKey) {
 }
 
 export function getShips() {
+  const quiet = enabled && Date.now() - lastMsg > SILENCE_MS;
   return {
     enabled,
+    status: !enabled ? 'disabled' : lastError || quiet ? `failed: ${lastError ?? 'ingen data'}` : 'ok',
+    lastMessage: lastMsg || null,
     updated: Date.now(),
     ships: [...ships.values()].filter((s) => typeof s.lat === 'number'),
   };
