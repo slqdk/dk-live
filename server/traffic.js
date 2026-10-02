@@ -2,7 +2,7 @@
 // public GeoJSON feed (no key). The feed is an append-only log of event versions, so we keep
 // the newest version per featureId and drop suspended (ended) ones.
 // Attribution: Kilde: Vejdirektoratet / trafikinfo.dk
-import { inBbox, log } from './bbox.js';
+import { inBbox, log, copenhagenTime } from './bbox.js';
 
 const URL = 'https://storage.googleapis.com/trafikkort-data/geojson/big-screen-events.json';
 const UA = 'dk-live/0.1 (personal dashboard)';
@@ -38,7 +38,7 @@ const stripHtml = (s) =>
 // "13-09-2026 kl. 15:45" → ms
 function dkTime(s) {
   const m = (s ?? '').match(/(\d{2})-(\d{2})-(\d{4}) kl\. (\d{2}):(\d{2})/);
-  return m ? new Date(+m[3], +m[2] - 1, +m[1], +m[4], +m[5]).getTime() : null;
+  return m ? copenhagenTime(+m[3], +m[2], +m[1], +m[4], +m[5]) : null;
 }
 
 async function poll() {

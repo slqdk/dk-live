@@ -1,4 +1,4 @@
-import { SmartPopup, esc } from '../app.js';
+import { SmartPopup, esc, getUserPos } from '../app.js';
 
 // Click anywhere on the map (not on a marker) for the weather at that point.
 // Open-Meteo, no key: current conditions, 15-min precipitation for 6 hours, hourly for 2 days.
@@ -89,10 +89,11 @@ export class ForecastLayer {
     this.btn = document.getElementById('weather-open');
     this.hint = document.getElementById('weather-hint');
 
-    // Button: show the weather where the map is centred. Press again (or the hint) to pick a spot.
+    // Button: weather at the device's position (if located), else where the map is centred.
+    // Press again (or the hint) to pick a spot.
     this.btn.addEventListener('click', () => {
       if (this.picking) return this.setPicking(false);
-      this.show(map.getCenter());
+      this.show(getUserPos() ?? map.getCenter());
     });
     this.hint.addEventListener('click', () => this.setPicking(false));
     this.btn.addEventListener('dblclick', () => this.setPicking(true));

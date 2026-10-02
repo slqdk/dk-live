@@ -12,7 +12,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as cheerio from 'cheerio';
-import { BBOX, log } from './bbox.js';
+import { BBOX, log, copenhagenTime } from './bbox.js';
 import { record } from './alarmstats.js';
 
 const CACHE_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), 'cache');
@@ -129,7 +129,7 @@ function regeocode() {
 // --- the alarm list ---------------------------------------------------------------
 function parseTime(text) {
   const m = text.match(/(\d{2})-(\d{2})-(\d{4})\s+(\d{2}):(\d{2})/);
-  return m ? new Date(+m[3], +m[2] - 1, +m[1], +m[4], +m[5]).getTime() : null;
+  return m ? copenhagenTime(+m[3], +m[2], +m[1], +m[4], +m[5]) : null;
 }
 
 function parsePage(html) {

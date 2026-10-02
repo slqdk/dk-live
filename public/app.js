@@ -46,6 +46,27 @@ const map = new maplibregl.Map({
 window.map = map; // handy for debugging in the console
 map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
 
+// "Min position": blue dot + accuracy ring, follows the device. Browsers only allow
+// geolocation on HTTPS (or localhost), so on plain http the button is left out.
+let userPos = null;
+export const getUserPos = () => userPos;
+if (window.isSecureContext && 'geolocation' in navigator) {
+  const geolocate = new maplibregl.GeolocateControl({
+    positionOptions: { enableHighAccuracy: false, maximumAge: 60_000, timeout: 15_000 },
+    trackUserLocation: true,
+    showAccuracyCircle: true,
+    fitBoundsOptions: { maxZoom: 11 },
+  });
+  map.addControl(geolocate, 'bottom-right');
+  geolocate.on('geolocate', (e) => (userPos = { lng: e.coords.longitude, lat: e.coords.latitude }));
+  // already allowed earlier → show the dot straight away, without the permission prompt
+  navigator.permissions?.query({ name: 'geolocation' }).then((p) => {
+    if (p.state !== 'granted') return;
+    if (map.loaded()) geolocate.trigger();
+    else map.once('load', () => geolocate.trigger());
+  }).catch(() => {});
+}
+
 const statusEl = document.querySelector('[data-status]');
 const status = (text, err = false) => {
   statusEl.textContent = text;
