@@ -37,14 +37,16 @@ const map = new maplibregl.Map({
   style: 'https://tiles.openfreemap.org/styles/dark', // free, no key
   bounds: homeBounds(),
   fitBoundsOptions: { padding: 20 },
-  maxBounds: [[BBOX[0][0] - PAD, BBOX[0][1] - PAD], [BBOX[1][0] + PAD, BBOX[1][1] + PAD]],
-  minZoom: 4.5,
+  // An embedded map can be wide and low, where these limits would cut Denmark off.
+  maxBounds: embed ? undefined : [[BBOX[0][0] - PAD, BBOX[0][1] - PAD], [BBOX[1][0] + PAD, BBOX[1][1] + PAD]],
+  minZoom: embed ? 3 : 4.5,
   maxZoom: 17,
   fadeDuration: 0, // no label cross-fades → fewer continuous redraws
   refreshExpiredTiles: false,
   attributionControl: { compact: true },
 });
 window.map = map; // handy for debugging in the console
+if (embed) map.on('resize', () => map.fitBounds(homeBounds(), { padding: 20, animate: false }));
 map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
 
 // "Min position": blue dot + accuracy ring, follows the device. Browsers only allow
