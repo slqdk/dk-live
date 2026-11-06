@@ -36,7 +36,7 @@ async function pollNow() {
   const offshore = pick(r, 'OffshoreWindPower', 'OffshorewindPower', 'OffshoreWindGe100MW_MWh') ?? 0;
   const onshore = pick(r, 'OnshoreWindPower', 'OnshorewindPower') ?? 0;
   return {
-    time: Date.parse(`${pick(r, 'Minutes1DK', 'Minutes5DK', 'Minutes1UTC')}Z`) || Date.now(),
+    time: Date.parse(`${pick(r, 'Minutes1UTC', 'Minutes5UTC')}Z`) || Date.now(),
     offshoreWind: offshore,
     onshoreWind: onshore,
     wind: offshore + onshore,
@@ -59,10 +59,11 @@ async function pollNow() {
 // tomorrow appear around 13:00 Danish time, so this covers "the rest of today plus tomorrow".
 async function pollPrices() {
   const filter = encodeURIComponent(JSON.stringify({ PriceArea: [AREA] }));
-  const data = await json(`${BASE}/DayAheadPrices?start=now-P1D&end=now%2BP2D&filter=${filter}&sort=TimeDK%20ASC&limit=200`);
+  const data = await json(`${BASE}/DayAheadPrices?start=now-P1D&end=now%2BP2D&filter=${filter}&sort=TimeUTC%20ASC&limit=200`);
   return (data.records ?? [])
     .map((r) => ({
-      time: Date.parse(`${pick(r, 'TimeDK', 'HourDK')}Z`),
+      // TimeUTC, not TimeDK: read as UTC, Danish time puts every price 1-2 hours late.
+      time: Date.parse(`${pick(r, 'TimeUTC', 'HourUTC')}Z`),
       // DKK/MWh → DKK/kWh (raw spot, before tariffs, afgifter and moms)
       dkk: Math.round(((pick(r, 'DayAheadPriceDKK', 'SpotPriceDKK') ?? 0) / 1000) * 1000) / 1000,
     }))
@@ -78,7 +79,8 @@ async function poll() {
     const slot = new Date(t).setMinutes(Math.floor(new Date(t).getMinutes() / 15) * 15, 0, 0);
     const current = prices.find((p) => p.time === slot) ?? prices.filter((p) => p.time <= t).at(-1) ?? null;
     const ahead = prices.filter((p) => p.time >= (current?.time ?? slot));
-    cache = { updated: t, status: 'ok', area: AREA, now, price: current, prices: ahead };
+    // timeBase tells other apps (SLQ Dashboard) that the times are real instants.
+    cache = { updated: t, status: 'ok', area: AREA, timeBase: 'utc', now, price: current, prices: ahead };
   } catch (err) {
     cache.status = `failed: ${err.cause?.code ?? err.message}`;
     log('energy', 'poll failed:', cache.status);
