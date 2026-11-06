@@ -46,8 +46,25 @@ const map = new maplibregl.Map({
   attributionControl: { compact: true },
 });
 window.map = map; // handy for debugging in the console
-if (embed) map.on('resize', () => map.fitBounds(homeBounds(), { padding: 20, animate: false }));
 map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
+
+// Embedded as a background with panels on top: the page says how much of the edges they
+// cover, and Denmark and the map's buttons stay in the free part in the middle.
+if (embed) {
+  let padding = 20;
+  const fit = () => map.fitBounds(homeBounds(), { padding, animate: false });
+  const buttons = map.getContainer().querySelector('.maplibregl-control-container');
+  map.on('resize', fit);
+  addEventListener('message', (e) => {
+    const free = e.data?.mapPadding;
+    if (e.origin !== location.origin || !free) return;
+    const first = padding === 20;
+    padding = free;
+    Object.assign(buttons.style, { position: 'absolute', top: `${free.top}px`, right: `${free.right}px`, bottom: `${free.bottom}px`, left: `${free.left}px` });
+    if (first) fit();
+  });
+  if (parent !== window) parent.postMessage({ mapReady: true }, location.origin);
+}
 
 // "Min position": blue dot + accuracy ring, follows the device. Browsers only allow
 // geolocation on HTTPS (or localhost), so on plain http the button is left out.

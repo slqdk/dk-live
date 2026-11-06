@@ -75,6 +75,10 @@ Kortet kan vises i en anden side, som SLQ Dashboard gør det:
 Menuerne er væk, og lag uden for listen bliver slet ikke hentet. Alle adresser i
 klienten er relative, så kortet også virker under en anden sides sti.
 
+Ligger kortet som baggrund med paneler ovenpå, kan siden sende
+`{ mapPadding: { top, right, bottom, left } }` med `postMessage`, når kortet melder
+`{ mapReady: true }`. Så lægges Danmark og kortets knapper i den frie del.
+
 ## Installation
 
 Kræver **Node.js 20 eller nyere** (pc) eller **Docker** (server).
