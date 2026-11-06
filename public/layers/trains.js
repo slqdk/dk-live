@@ -50,7 +50,7 @@ export class TrainsLayer {
     map.on('mouseleave', 'trains-icon', () => (map.getCanvas().style.cursor = ''));
 
     subscribe(
-      '/api/trains',
+      'api/trains',
       POLL_MS,
       (data) => {
         if (!data.enabled) return (this.count = 'ingen nøgle');

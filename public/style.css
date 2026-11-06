@@ -457,3 +457,6 @@ button.link:hover { color: var(--alarm); }
 
 /* Navigational warning text in popup — clamp instead of scrolling */
 .popup .navwarn-details { font-size: 12px; line-height: 1.35; margin: 6px 0 0; white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Embedded in another page: the map and nothing around it */
+body.embed #topbar, body.embed #layers-menu, body.embed #status, body.embed #radar-ctl { display: none !important; }

@@ -19,14 +19,15 @@ import { initSettings } from './settings.js';
 import { initStats } from './stats.js';
 import { initLogs } from './logs.js';
 import { initPolice } from './police.js';
-import { prefs, loadPrefs, onPrefs } from './prefs.js';
+import { prefs, loadPrefs, onPrefs, embed } from './prefs.js';
 
 // Keep in sync with server/bbox.js
 export const BBOX = [[7.5, 53.3], [13.0, 57.9]];
 const PAD = 1.5; // how far past the bbox the user may pan
 
-const admin = await fetch('/api/whoami').then((r) => r.json()).then((d) => d.admin).catch(() => false);
+const admin = embed ? false : await fetch('api/whoami').then((r) => r.json()).then((d) => d.admin).catch(() => false);
 if (admin) document.body.classList.add('admin');
+if (embed) document.body.classList.add('embed');
 
 await loadPrefs();
 const homeBounds = () => prefs.homeView ?? BBOX;
@@ -96,7 +97,7 @@ map.on('load', async () => {
     flights: new FlightsLayer(map, { military: false }),
     military: new FlightsLayer(map, { military: true }),
   };
-  for (const l of Object.values(layers)) await l.init();
+  for (const [key, l] of Object.entries(layers)) if (!embed || embed.layers.has(key)) await l.init();
 
   onPrefs((p, patch) => {
     for (const l of Object.values(layers)) l.applyPrefs?.(p, patch);
@@ -109,15 +110,16 @@ map.on('load', async () => {
   document.querySelectorAll('.layer').forEach((row) => {
     const key = row.dataset.layer;
     const input = row.querySelector('input');
-    if (key in saved) input.checked = saved[key];
-    if (layers[key]) layers[key].setVisible(input.checked);
+    if (embed) input.checked = embed.layers.has(key);
+    else if (key in saved) input.checked = saved[key];
+    if (layers[key] && (!embed || input.checked)) layers[key].setVisible(input.checked);
     else if (key === 'energy') document.getElementById('energy').hidden = !input.checked;
     input.addEventListener('change', async (e) => {
       layers[key]?.setVisible(e.target.checked);
       saved[key] = e.target.checked;
       if (!admin) return;
       try {
-        await fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prefs: { layers: saved } }) });
+        await fetch('api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prefs: { layers: saved } }) });
       } catch {}
     });
   });
@@ -136,10 +138,12 @@ map.on('load', async () => {
   countEl.addEventListener('click', (e) => e.preventDefault());
   layers.alarms.onUpdate = (alarms) => renderAlarmList(alarms, document.getElementById('recent-alarms'));
 
-  initEnergy();
-  initSettings(map, BBOX);
-  initStats();
-  initPolice();
+  if (!embed || embed.layers.has('energy')) initEnergy();
+  if (!embed) {
+    initSettings(map, BBOX);
+    initStats();
+    initPolice();
+  }
   if (admin) initLogs();
   // One right-hand panel at a time
   const sidePanels = ['police', 'stats', 'settings', 'logs'];

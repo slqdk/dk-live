@@ -61,7 +61,7 @@ export class WebcamsLayer {
     map.on('mouseleave', 'webcams-hit', () => (map.getCanvas().style.cursor = ''));
 
     subscribe(
-      '/api/webcams',
+      'api/webcams',
       POLL_MS,
       (data) => {
         this.items = data.items;
@@ -105,7 +105,7 @@ export class WebcamsLayer {
     if (c.source === 'windy') {
       popup.setHTML(shell('<p class="muted">Henter billede…</p>'));
       try {
-        const r = await (await fetch(`/api/webcams/windy/${c.windyId}`)).json();
+        const r = await (await fetch(`api/webcams/windy/${c.windyId}`)).json();
         image = r.image ?? null;
         live = r.live ?? r.day ?? null;
       } catch {}

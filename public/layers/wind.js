@@ -63,7 +63,7 @@ export class WindLayer {
     map.on('mouseleave', 'wind-arrow', () => (map.getCanvas().style.cursor = ''));
 
     subscribe(
-      '/api/wind',
+      'api/wind',
       POLL_MS,
       (data) => {
         this.count = data.stations.length;

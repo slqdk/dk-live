@@ -23,7 +23,7 @@ export class RadarLayer {
   async init() {
     this.initControls();
     subscribe(
-      '/api/radar',
+      'api/radar',
       POLL_MS,
       (data) => {
         this.error = data.status.startsWith('failed') ? `radar: ${data.status}` : null;

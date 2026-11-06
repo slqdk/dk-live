@@ -1,4 +1,5 @@
 import { subscribe } from './feed.js';
+import { recent } from '../prefs.js';
 
 const POLL_MS = 60_000;
 
@@ -24,7 +25,7 @@ export class LightningLayer {
       },
     });
     subscribe(
-      '/api/lightning',
+      'api/lightning',
       POLL_MS,
       (data) => {
         if (!data.enabled) return (this.count = 'ingen nøgle');
@@ -33,7 +34,7 @@ export class LightningLayer {
         const now = Date.now();
         map.getSource('lightning').setData({
           type: 'FeatureCollection',
-          features: data.strikes.map((s) => ({
+          features: data.strikes.filter((s) => recent(s.time)).map((s) => ({
             type: 'Feature',
             geometry: { type: 'Point', coordinates: [s.lon, s.lat] },
             properties: { type: s.type, ageMin: (now - s.time) / 60_000 },

@@ -1,6 +1,7 @@
 // Navigational warnings (NW) and firing exercises (FE) from Nautisk Information (Niord).
 import { subscribe } from './feed.js';
 import { esc, SmartPopup } from '../app.js';
+import { recent } from '../prefs.js';
 
 const POLL_MS = 10 * 60_000;
 const color = ['match', ['get', 'kind'], 'fe', '#ff5c7a', '#ff9f43'];
@@ -36,7 +37,7 @@ export class NavWarningsLayer {
     }
 
     subscribe(
-      '/api/navwarnings',
+      'api/navwarnings',
       POLL_MS,
       (data) => {
         this.count = data.warnings.length;
@@ -44,7 +45,7 @@ export class NavWarningsLayer {
         this.byId = new Map(data.warnings.map((w) => [String(w.id), w]));
         map.getSource('navwarn').setData({
           type: 'FeatureCollection',
-          features: data.warnings.flatMap((w) => w.geometries.map((g) => ({ type: 'Feature', geometry: g, properties: { id: String(w.id), kind: w.kind } }))),
+          features: data.warnings.filter((w) => recent(w.from)).flatMap((w) => w.geometries.map((g) => ({ type: 'Feature', geometry: g, properties: { id: String(w.id), kind: w.kind } }))),
         });
       },
       (err) => (this.error = `navigationsadvarsler: ${err.message}`)

@@ -99,7 +99,7 @@ export class AirportsLayer {
     map.on('mouseleave', 'airports-hit', () => (map.getCanvas().style.cursor = ''));
 
     subscribe(
-      '/api/airports',
+      'api/airports',
       POLL_MS,
       (data) => {
         this.airports = data.airports;

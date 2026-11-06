@@ -1,6 +1,6 @@
 import { subscribe } from './feed.js';
 import { esc, SmartPopup } from '../app.js';
-import { cap } from '../prefs.js';
+import { cap, recent } from '../prefs.js';
 
 const POLL_MS = 60_000;
 const COLORS = {
@@ -67,7 +67,7 @@ export class TrafficLayer {
     map.on('mouseleave', 'traffic-hit', () => (map.getCanvas().style.cursor = ''));
 
     subscribe(
-      '/api/traffic',
+      'api/traffic',
       POLL_MS,
       (data) => {
         this.last = data;
@@ -83,7 +83,7 @@ export class TrafficLayer {
   toGeo(data) {
     return {
       type: 'FeatureCollection',
-      features: data.events.map((ev) => ({
+      features: data.events.filter((ev) => recent(ev.modified ?? ev.begin)).map((ev) => ({
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [ev.lon, ev.lat] },
         properties: {

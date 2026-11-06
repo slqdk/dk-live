@@ -1,6 +1,6 @@
 import { subscribe } from './feed.js';
 import { esc, SmartPopup } from '../app.js';
-import { cap } from '../prefs.js';
+import { cap, recent } from '../prefs.js';
 
 const POLL_MS = 120_000;
 const COLORS = { melding: '#ff7a45', spærring: '#ffb300', vejarbejde: '#9aa5b5' };
@@ -56,7 +56,7 @@ export class AutobahnLayer {
     map.on('mouseleave', 'autobahn-hit', () => (map.getCanvas().style.cursor = ''));
 
     subscribe(
-      '/api/autobahn',
+      'api/autobahn',
       POLL_MS,
       (data) => {
         this.last = data;
@@ -71,7 +71,7 @@ export class AutobahnLayer {
   toGeo(data) {
     return {
       type: 'FeatureCollection',
-      features: data.items.map((ev) => ({
+      features: data.items.filter((ev) => recent(ev.start)).map((ev) => ({
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [ev.lon, ev.lat] },
         properties: { ...ev, color: COLORS[ev.kind] ?? COLORS.vejarbejde, label: `${ev.road} · ${cap(ev.subtitle || ev.title)}` },

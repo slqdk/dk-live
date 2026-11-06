@@ -45,7 +45,7 @@ export function initEnergy() {
   });
   const tick = async () => {
     try {
-      const data = await (await fetch('/api/energy', { cache: 'no-store' })).json();
+      const data = await (await fetch('api/energy', { cache: 'no-store' })).json();
       lastData = data.now ? data : null;
       render(el, lastData, data.status);
     } catch (err) {

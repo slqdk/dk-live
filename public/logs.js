@@ -38,7 +38,7 @@ export function initLogs() {
 
   async function tick() {
     try {
-      const d = await (await fetch(`/api/logs?since=${since}`, { cache: 'no-store' })).json();
+      const d = await (await fetch(`api/logs?since=${since}`, { cache: 'no-store' })).json();
       if (d.error) {
         body.innerHTML = `<p class="status err">${esc(d.error)}</p>`;
         return stop();
@@ -57,7 +57,7 @@ export function initLogs() {
     if (tab === 'log' && atBottom && !paused) body.scrollTop = body.scrollHeight;
     body.querySelector('#forget-visitors')?.addEventListener('click', async () => {
       if (!confirm('Slet listen over besøgende?')) return;
-      await fetch('/api/logs/forget-visitors', { method: 'POST' });
+      await fetch('api/logs/forget-visitors', { method: 'POST' });
       tick();
     });
   }

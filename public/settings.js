@@ -24,7 +24,7 @@ export function initSettings(map, BBOX) {
   document.getElementById('settings-close').addEventListener('click', () => (panel.hidden = true));
 
   async function load() {
-    const res = await fetch('/api/settings', { cache: 'no-store' });
+    const res = await fetch('api/settings', { cache: 'no-store' });
     const data = await res.json();
     if (!res.ok) {
       tabs.innerHTML = '';
@@ -222,7 +222,7 @@ export function initSettings(map, BBOX) {
   }
 
   async function post(payload) {
-    const res = await fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const res = await fetch('api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error ?? res.statusText);
     return data;

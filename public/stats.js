@@ -19,7 +19,7 @@ export function initStats() {
   document.getElementById('stats-close').addEventListener('click', () => (panel.hidden = true));
   document.getElementById('stats-prev').addEventListener('click', () => step(-1));
   document.getElementById('stats-next').addEventListener('click', () => step(1));
-  document.getElementById('stats-csv').addEventListener('click', () => window.open(`/api/stats/alarms.csv${month ? `?month=${month}` : ''}`, '_blank'));
+  document.getElementById('stats-csv').addEventListener('click', () => window.open(`api/stats/alarms.csv${month ? `?month=${month}` : ''}`, '_blank'));
 
   let months = [];
   function step(d) {
@@ -32,7 +32,7 @@ export function initStats() {
 
   async function load() {
     body.innerHTML = '<p class="muted">Henter…</p>';
-    const data = await (await fetch(`/api/stats/alarms${month ? `?month=${month}` : ''}`, { cache: 'no-store' })).json();
+    const data = await (await fetch(`api/stats/alarms${month ? `?month=${month}` : ''}`, { cache: 'no-store' })).json();
     month = data.month;
     months = data.months;
     title.textContent = monthName(month);

@@ -78,7 +78,7 @@ export class FlightsLayer {
     map.on('mouseleave', `${this.id}-icon`, () => (map.getCanvas().style.cursor = ''));
 
     subscribe(
-      '/api/flights',
+      'api/flights',
       POLL_MS,
       (data) => {
         this.aircraft = data.aircraft.filter((a) => a.military === this.military);
@@ -167,7 +167,7 @@ export class FlightsLayer {
     const q = new URLSearchParams();
     if (p.reg && p.reg !== 'null') q.set('reg', p.reg);
     if (p.type && p.type !== 'null') q.set('type', p.type);
-    loadPhoto(popup, `/api/photo/aircraft/${encodeURIComponent(p.id)}?${q}`);
+    loadPhoto(popup, `api/photo/aircraft/${encodeURIComponent(p.id)}?${q}`);
   }
 
   setVisible(on) {

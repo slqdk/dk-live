@@ -85,7 +85,7 @@ export class InterconnectLayer {
     map.on('mouseleave', 'ic-arrow', () => (map.getCanvas().style.cursor = ''));
 
     subscribe(
-      '/api/energy',
+      'api/energy',
       POLL_MS,
       (data) => {
         const ex = data.now?.exchanges ?? {};

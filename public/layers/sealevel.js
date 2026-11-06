@@ -47,7 +47,7 @@ export class SeaLevelLayer {
     map.on('mouseleave', 'sealevel-dot', () => (map.getCanvas().style.cursor = ''));
 
     subscribe(
-      '/api/sealevel',
+      'api/sealevel',
       POLL_MS,
       (data) => {
         this.count = data.stations.length;

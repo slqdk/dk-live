@@ -1,6 +1,6 @@
 import { subscribe } from './feed.js';
 import { esc, SmartPopup } from '../app.js';
-import { cap, prefs } from '../prefs.js';
+import { cap, prefs, recent } from '../prefs.js';
 
 const POLL_MS = 60_000;
 
@@ -66,7 +66,7 @@ export class AlarmsLayer {
     map.on('mouseleave', 'alarms-hit', () => (map.getCanvas().style.cursor = ''));
 
     subscribe(
-      '/api/odin',
+      'api/odin',
       POLL_MS,
       (data) => {
         this.alarms = data.alarms;
@@ -87,7 +87,7 @@ export class AlarmsLayer {
     // Several alarms at the same station: fan them out slightly so all are clickable
     const perStation = new Map();
     const features = this.alarms
-      .filter((a) => a.lat)
+      .filter((a) => a.lat && recent(a.time))
       .map((a) => {
         const n = perStation.get(a.station) ?? 0;
         perStation.set(a.station, n + 1);

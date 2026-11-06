@@ -31,7 +31,7 @@ export function initPolice() {
 
   async function load() {
     try {
-      data = await (await fetch('/api/police', { cache: 'no-store' })).json();
+      data = await (await fetch('api/police', { cache: 'no-store' })).json();
       if (filter == null) filter = prefs.policeDistrict ?? 'Alle';
       renderFilter();
       render();
@@ -97,7 +97,7 @@ export function initPolice() {
     const target = list.querySelector(`li[data-id="${id}"] .detail`);
     if (!target) return;
     try {
-      const d = await (await fetch(`/api/police/${id}`)).json();
+      const d = await (await fetch(`api/police/${id}`)).json();
       if (d.error) throw new Error(d.error);
       target.innerHTML = `
         <ol class="timeline">${(d.updates.length ? d.updates : [{ time: null, text: 'Ingen tekst fundet – åbn meddelelsen.' }])

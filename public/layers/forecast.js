@@ -120,7 +120,7 @@ export class ForecastLayer {
       .setHTML('<div class="popup forecast"><h3>Vejr</h3><p class="muted">Henter…</p></div>')
       .addTo(this.map);
     try {
-      const d = await (await fetch(`/api/forecast?lat=${lngLat.lat.toFixed(4)}&lon=${lngLat.lng.toFixed(4)}`)).json();
+      const d = await (await fetch(`api/forecast?lat=${lngLat.lat.toFixed(4)}&lon=${lngLat.lng.toFixed(4)}`)).json();
       if (d.error) throw new Error(d.error);
       popup.setHTML(this.render(d));
       popup.getElement().querySelector('.pick')?.addEventListener('click', () => {

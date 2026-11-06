@@ -22,7 +22,7 @@ export class FlowLayer {
     const beforeId = layers[lastLine + 1]?.id;
     map.addSource('flow', {
       type: 'vector',
-      tiles: [`${location.origin}/api/flow/{z}/{x}/{y}.pbf`],
+      tiles: [`${new URL('api/flow/', location.href).href}{z}/{x}/{y}.pbf`],
       minzoom: 5,
       maxzoom: 14,
       attribution: 'Traffic © TomTom',
@@ -49,7 +49,7 @@ export class FlowLayer {
       },
       beforeId
     );
-    subscribe('/api/flow', 5 * 60_000, (d) => (this.count = d.enabled ? '' : 'ingen nøgle'), (err) => (this.error = `flow: ${err.message}`));
+    subscribe('api/flow', 5 * 60_000, (d) => (this.count = d.enabled ? '' : 'ingen nøgle'), (err) => (this.error = `flow: ${err.message}`));
   }
 
   widthExpr() {

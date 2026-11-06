@@ -63,6 +63,18 @@ til de offentlige API'er, og de fleste lag virker helt uden nøgler.
 
 ---
 
+## Indlejret kort
+
+Kortet kan vises i en anden side, som SLQ Dashboard gør det:
+
+```
+/index.html?embed=1&hours=6&layers=alarms,traffic,lightning,radar
+```
+
+`layers` er de lag, der skal med, og `hours` er, hvor gamle tingene højst må være.
+Menuerne er væk, og lag uden for listen bliver slet ikke hentet. Alle adresser i
+klienten er relative, så kortet også virker under en anden sides sti.
+
 ## Installation
 
 Kræver **Node.js 20 eller nyere** (pc) eller **Docker** (server).

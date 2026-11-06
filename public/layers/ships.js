@@ -126,7 +126,7 @@ export class ShipsLayer {
     map.on('mouseleave', 'ships-icon', () => (map.getCanvas().style.cursor = ''));
 
     subscribe(
-      '/api/ships',
+      'api/ships',
       POLL_MS,
       (data) => {
         if (!data.enabled) {
@@ -190,7 +190,7 @@ export class ShipsLayer {
         <a class="ext" href="https://www.marinetraffic.com/en/ais/details/ships/mmsi:${p.id}" target="_blank" rel="noopener">MarineTraffic ↗</a></div>`
       )
       .addTo(this.map);
-    if (p.name && k === 'ship') loadPhoto(popup, `/api/photo/ship/${p.id}?name=${encodeURIComponent(p.name)}`);
+    if (p.name && k === 'ship') loadPhoto(popup, `api/photo/ship/${p.id}?name=${encodeURIComponent(p.name)}`);
   }
 
   setVisible(on) {
